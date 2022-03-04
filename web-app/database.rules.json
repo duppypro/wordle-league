@@ -1,7 +1,17 @@
 {
   /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
-    ".read": false,
-    ".write": false
+    "public": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".validate": "newData.isString() && newData.val().length < 256"
+    },
+    "dataByUserID": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.isString() && newData.val().length < 256"
+      }
+    }
   }
 }
