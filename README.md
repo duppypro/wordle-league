@@ -10,7 +10,7 @@ Allow 7 guesses if the forced start word is chosen and record failures as 9 gues
  Include 7 day and 30 day challenges to start.
 
 TODO:
-- [ ] retrieve word list, OG and NYT
+- [X] retrieve word list, OG and NYT
 - [ ] Unique random version for this site (one off or seed based?)
 - [ ] pick from list browser local time
 - [ ] add forced random start word per team(teams not defined yet)
