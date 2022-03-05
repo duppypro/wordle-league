@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wordle League</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.6.8/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.6.8/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.6.8/firebase-database-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=false"></script>
+
+    <style media="screen">
+      .toaster {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        pointer-events: none;
+        width: fit-content;
+      }
+      #game-toaster {
+        z-index: 1000;
+      }
+      #system-toaster {
+        z-index: 4000;
+      }
+
+      #wordle-game {
+        width: 100%;
+        max-width: var(--game-max-width);
+        margin: 0 auto;
+        height: calc(100% - var(--header-height));
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        padding: 0 16px;
+        height: var(--header-height);
+        color: var(--color-tone-1);
+        border-bottom: 1px solid var(--color-tone-4);
+      }
+      header .title {
+        font-family: 'nyt-karnakcondensed';
+        font-weight: 700;
+        font-size: 37px;
+        line-height: 100%;
+        letter-spacing: 0.01em;
+        text-align: center;
+        left: 0;
+        right: 0;
+        pointer-events: none;
+      }
+      .menu-left {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+        width: 70px;
+        justify-content: flex-start;
+      }
+      .menu-right {
+        display: flex;
+        width: 70px;
+        justify-content: flex-end;
+      }
+      #nav-button {
+        padding-top: 2px;
+      }
+
+      @media (min-width: 415px) {
+        header {
+          padding: 0px 16px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        header .title {
+          font-size: 22px;
+          letter-spacing: 0.1rem;
+        }
+      }
+
+      #board-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+        overflow: hidden;
+      }
+      #board {
+        display: grid;
+        grid-template-rows: repeat(6, 1fr);
+        grid-gap: 5px;
+        padding:10px;
+        box-sizing: border-box;
+      }
+      button.icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0 4px;
+      }
+
+      #debug-tools {
+        position: absolute;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title">
+      <h2>Welcome</h2>
+      <h1>This is Wordle League</h1>
+      <p>hosted by firebase</p>
+    </div>
+    <p id="load">Firebase SDK Loading&hellip;</p>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadEl = document.querySelector('#load');
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        // firebase.analytics(); // call to activate
+        // firebase.analytics().logEvent('tutorial_completed');
+        // firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+        try {
+          let app = firebase.app();
+          let features = [
+            'auth', 
+            'database', 
+          ].filter(feature => typeof app[feature] === 'function');
+          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
+        } catch (e) {
+          console.error(e);
+          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+        }
+      });
+    </script>
+    <!-- Wordle placeholders -->
+    <div id="wordle-game">Loading Game</div>
+    <div id="wordle-keyboard">Loading Keyboard</div>
+
+    <!-- Load Wordle scripts -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="./scripts/wordle-set-defaults.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/main.js"></script>
+  </body>
+</html>
