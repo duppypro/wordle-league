@@ -3,23 +3,23 @@
 
 ///////////////////////// WORDLE FUNCTIONS //////////////////
 const updateDOMFromStates = (allPS) => {
-    let sel = d3.select('.wordle-challenge').selectAll('div.wordle-puzzle')
-        .data(allPS, ps=>ps.ID)
-        .join(
-            enter => enter
-                .append('div').attr('class', 'wordle-puzzle'), // create puzzle boards that are new to the array puzzleStates
-            old => old,
-            exit => exit
-                .transition().duration(677).style('opacity',0).remove()
-        )
-        /* update old and new here */
-        .text(ps=>`Puzzle #${ps.ID} ${firstGuessByID[ps.ID].toUpperCase()} ${solutionByID[ps.ID].toUpperCase()}`)
-        // NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
-        //       except update only includes elements before the enter
-        //       so the pattern is more accurately: .join(enter(),old(),exit()).update()
-    //selPuzzles.call()        //.selectAll('div.wordle-guess').data()
-        //.append('div').attr('class', 'wordle-guess') // create puzzle boards that are new to the array puzzleStates
-    return sel
+	let sel = d3.select('.wordle-challenge').selectAll('div.wordle-puzzle')
+		.data(allPS, ps=>ps.ID)
+		.join(
+			enter => enter
+				.append('div').attr('class', 'wordle-puzzle'), // create puzzle boards that are new to the array puzzleStates
+			old => old,
+			exit => exit
+				.transition().duration(677).style('opacity',0).remove()
+		)
+		/* update old and new here */
+		.text(ps=>`Puzzle #${ps.ID+1} ${firstGuessByID[ps.ID].toUpperCase()} ${ps.finished ? solutionByID[ps.ID].toUpperCase(): '?????'}`)
+		// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
+		//       except update only includes elements before the enter
+		//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
+	//selPuzzles.call()        //.selectAll('div.wordle-guess').data()
+		//.append('div').attr('class', 'wordle-guess') // create puzzle boards that are new to the array puzzleStates
+	return sel
 }
 //////////////////////////// USER ALL-TIME VIEW /////////////////////
 //// ALL-TIME view or LEAGUE view?
@@ -42,6 +42,7 @@ let numPuzzles = 7 // TODO: enable 7 or 30 and defining set of players in Challe
 let currentPuzzleID = 0
 let possibleSolutionWords = Array.from(WORDLE_SET_FROM.OG.possibleSolutionWords)
 let allValidWords = possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
+let allValidLetters = "abcdefghijklmnopqrstuvwxyz"
 let solutionByID = removeRandomSubset(possibleSolutionWords, numPuzzles)
 let firstGuessByID = sharedFirstGuess ? removeRandomSubset(possibleSolutionWords, numPuzzles) : []
 
@@ -50,22 +51,41 @@ let firstGuessByID = sharedFirstGuess ? removeRandomSubset(possibleSolutionWords
 // init DOM for Challenge
 d3.select("#wordle-league").append('div').attr('class','wordle-challenge')
 d3.select('body').on('keydown',(e)=>{
-    console.log(e)
-    console.log(d3.event)
+	console.log(currentPuzzleID, e)
+	if (e.key == 'Enter') {
+		puzzleStates[currentPuzzleID].finished = true // allways
+		if (currentPuzzleID < numPuzzles - 1) { // normal case
+			currentPuzzleID = currentPuzzleID + 1
+		}
+	}
+	if (e.key == 'Backspace') {
+		if (currentPuzzleID == numPuzzles - 1 && puzzleStates[currentPuzzleID].finished) {
+			// do nothing
+		} else {
+			if (currentPuzzleID > 0) { // normal case
+				currentPuzzleID = currentPuzzleID - 1
+			}
+		}
+		puzzleStates[currentPuzzleID].finished = false
+	}
+	if (allValidLetters.indexOf(e.key.toLowerCase()) != -1) {
+		console.log(`Guess ${e.key.toUpperCase()}`)
+	}
+	updateDOMFromStates(puzzleStates)
 })
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
 let puzzleStates = []
 for (let i=0; i < numPuzzles; i++) {
-    // init new puzzle state
-    let puzzleState = {
-        ID: i, // ID puzzles as 0-6
-        guesses: [sharedFirstGuess ? firstGuessByID[i] : '     ', '     ', '     ', '     ', '     ', '     ', '     ', '?????'],
-        cursorPos: {guess:1, letter: sharedFirstGuess ? 6 : 1},
-        solution: solutionByID[i],
-        finished: false
-    }
-    puzzleStates.push(puzzleState)
+	// init new puzzle state
+	let puzzleState = {
+		ID: i, // ID puzzles as 0-6
+		guesses: [sharedFirstGuess ? firstGuessByID[i] : '     ', '     ', '     ', '     ', '     ', '     ', '     ', '?????'],
+		cursorPos: {guess:1, letter: sharedFirstGuess ? 6 : 1},
+		solution: solutionByID[i],
+		finished: false
+	}
+	puzzleStates.push(puzzleState)
 }
 
 updateDOMFromStates(puzzleStates)
