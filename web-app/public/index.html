@@ -119,7 +119,7 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body class="nightmode" style="background-color:black;color: whitesmoke">
 		<div class="title">
 			<h2>Welcome</h2>
 			<h1>This is Wordle League</h1>
@@ -139,7 +139,7 @@
 						'database', 
 					].filter(feature => typeof app[feature] === 'function');
 					loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-					d3.selectAll('.load-message').transition().delay(677).duration(677).style('opacity',0).remove()
+					d3.selectAll('.load-message').transition().delay(339).duration(339).style('opacity',0).remove()
 				} catch (e) {
 					console.error(e);
 					loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
