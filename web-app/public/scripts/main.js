@@ -2,21 +2,25 @@
 // play Wordle competitevly with a forced random first guess
 
 ///////////////////////// WORDLE FUNCTIONS //////////////////
-const updateDOMFromPuzzleStates = (allPuzzles) => {
-	let selPuzzles = d3.select('.wordle-challenge').selectAll('div.wordle-puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
-		.data(allPuzzles, puzzle=>puzzle.ID) // make a puzzle element for each puzzle in this challenge
+const updateChallengeDOMFromPuzzleStates = (allPuzzles) => {
+	let selPuzzles = selChallenge.selectAll('div.wordle-puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
+		.data(allPuzzles) // make a puzzle element for each puzzle in this challenge
 		.join(
 			enter => enter
 				.append('div').attr('class', 'wordle-puzzle')
 				.style('text-align', 'center')
 				.style('width','350px')
-				.style('height', sharedStartWordMode ? '670px' : '500px'), // create puzzle boards that are new to the array allPuzzleStates
+				.style('height', sharedStartWordMode ? '670px' : '600px'), // create puzzle boards that are new to the array allPuzzles
 			old => old,
 			exit => exit
 				.transition().duration(677).style('opacity',0).remove()
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.text(puzzle=>`Puzzle #${puzzle.ID+1} || Guesses: ${puzzle.cursorPos.guessRow} / Final Score: ${puzzle.finished ? puzzle.finalScore : '-'}`)
+		.text(puzzle => 
+			`Puzzle #${puzzle.ID+1} ||`
+			+ ` Guesses: ${puzzle.cursorPos.guessRow} /`
+			+ ` Final Score: ${puzzle.finished ? puzzle.finalScore : '-'} of ${puzzle.maxGuesses}`
+		)
 		// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
 		//       except update only includes elements before the enter
 		//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
@@ -25,7 +29,7 @@ const updateDOMFromPuzzleStates = (allPuzzles) => {
 	selPuzzles.each((puzzle, i, nodes) => { //this is called for each div.wordle-puzzle
 		//puzzleState (puzzle)
 		d3.select(nodes[i]).selectAll('div.guessRow') // NYT Wordle calls this 'game-row.row'
-			.data(puzzle.guessWords) // make a row element for each guessWord in this puzzle
+			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter
 					.append('div').attr('class','guessRow')
@@ -36,56 +40,63 @@ const updateDOMFromPuzzleStates = (allPuzzles) => {
 				exit => exit
 					.transition().duration(677).style('opacity',0).remove()
 				)
-			// just a container for the letters, do not add any text(g=>`|${g}|`)
-			.each((guess, i, nodes) => {
+			// now for all entered and old guess rows create letters
+			.each((guessRow, i, nodes) => {
 				d3.select(nodes[i]).selectAll('div.letterBox div.guessLetter') // NYT Wordle calls this 'game-tile div.tile'
-				.data(guess)
+				.data(guessRow)
 				.join(
-					enter => {
-						let sel = enter
-							.append('div').attr('class','letterBox')
-								.style('display', 'inline-block')
-								.style('background-color', 'black')
-								.style('width', '62px')
-								.style('height', '62px')
-							.append('div').attr('class','guessLetter')
-								.style('border', '2px solid #3a3a3c')
-								.style('width', '100%')
-								.style('height', '100%')
-								.style('display', 'inline-flex')
-								.style('justify-content', 'center')
-								.style('align-items', 'center')
-								.style('font-size', '2rem')
-								.style('line-height', '2rem')
-								.style('font-weight', 'bold')
-								.style('vertical-align', 'middle')
-								.style('box-sizing', 'border-box')
-								.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
-								.style('text-transform','uppercase')
-						return sel
-					},
+					enter => enter
+						.append('div').attr('class','letterBox')
+							.style('display', 'inline-block')
+							.style('background-color', 'black')
+							.style('width', '62px')
+							.style('height', '62px')
+						.append('div').attr('class','guessLetter')
+							.style('border', '2px solid #3a3a3c')
+							.style('width', '100%')
+							.style('height', '100%')
+							.style('display', 'inline-flex')
+							.style('justify-content', 'center')
+							.style('align-items', 'center')
+							.style('font-size', '2rem')
+							.style('line-height', '2rem')
+							.style('font-weight', 'bold')
+							.style('vertical-align', 'middle')
+							.style('box-sizing', 'border-box')
+							.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
+							.style('text-transform','uppercase'),
 					old => old,
 					exit => exit
-						.transition().duration(677).style('opacity',0).remove()
-				)
-				// update all here because .join() returns merge of enter() and old()
-				.style('background-color', (letter,i,nodes) => {
-					if (allValidLetters.indexOf(letter) != -1) {
-						return ['#3a3a3c', '#538d4e', '#b59f3b'][randomIndex(3)]
-					} else {
-						return 'black'
-					}
+					.transition().duration(339).style('opacity',0).remove()
+					)
+					// update all here because .join() returns merge of enter() and old()
+					.text(tile => tile.letter)
+					.style('background-color', tile => hintColor[tile.hint])
 				})
-				.text(letter => letter)
-			})
 	}) // end selPuzzles.each()
 	return selPuzzles
 }
 
 const updatePuzzle = (key) => {
 	if (key == 'Enter') {
-		allPuzzles[currentPuzzleID].finished = true // allways
-		allPuzzles[currentPuzzleID].guesses[7] = solutionByID[currentPuzzleID]
+		if (allPuzzles[currentPuzzleID].finished == false) {
+			allPuzzles[currentPuzzleID].finished = true // allways
+			let testSolution = allPuzzles[currentPuzzleID].solution.slice().split('') // make a copy as an array of letters
+			const tiles = allPuzzles[currentPuzzleID].allGuesses[allPuzzles[currentPuzzleID].cursorPos.guessRow]
+			for (let i=0; i < 5; i++) {
+				const pos = testSolution.indexOf(tiles[i].letter)
+				if (pos == -1) {
+					tiles[i].hint = 'absent'
+				} else if (pos != i) {
+					tiles[i].hint = 'present'
+					testSolution[pos] = '?' // clear this to make double letters work.  But I don't think this actually works
+				} else if (pos == i) {
+					tiles[i].hint = 'correct'
+				} else {
+					throw "can't get here comparing pos and i"
+				}
+			}
+		}
 		if (currentPuzzleID < numPuzzles - 1) { // normal case
 			currentPuzzleID = currentPuzzleID + 1
 		}
@@ -104,7 +115,9 @@ const updatePuzzle = (key) => {
 	if (allValidLetters.indexOf(key.toLowerCase()) != -1) {
 		console.log(`Guess ${key.toUpperCase()}`)
 	}
-	updateDOMFromPuzzleStates(allPuzzles)
+
+	// Now update the DOM to match the challenge / puzzle state
+	updateChallengeDOMFromPuzzleStates(allPuzzles)
 }
 //////////////////////////// USER ALL-TIME VIEW /////////////////////
 //// ALL-TIME view or LEAGUE view?
@@ -114,13 +127,7 @@ const updatePuzzle = (key) => {
 // init state for league
 let userID = 'this-session'
 // init DOM for league
-d3.select("#wordle-league").style('text-align', 'center').text('')
-d3.select("#wordle-league")
-	.append('div')
-	.text("This 7 puzzle Challenge is unique to this browser session.")
-d3.select("#wordle-league")
-	.append('div').style('margin-bottom','32px')
-	.text("Do not close tab until solved.")
+let selLeague = d3.select("#wordle-league").style('text-align', 'center').text('')
 
 //////////////////////// CHALLENGE ///////////////////////////////////////
 // init challenge state. A challenge is a set of 7 or 30 games with pre-selected solution order to compete among diff users
@@ -137,11 +144,22 @@ let allValidWords = possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWo
 let allValidLetters = "abcdefghijklmnopqrstuvwxyz"
 let solutionByID = removeRandomSubset(possibleSolutionWords, numPuzzles)
 let startWordByID = sharedStartWordMode ? removeRandomSubset(possibleSolutionWords, numPuzzles) : []
+const hintColor = {
+	tbd: 'black',
+	absent: '#3a3a3c',
+	present: '#b59f3b',
+	correct: '#538d4e'
+}
 
 // done with challenge state initialized
 
 // init DOM for Challenge
-d3.select("#wordle-league").append('div').attr('class','wordle-challenge')
+let selChallenge = selLeague
+	.append('div')
+	.text("This 7 puzzle Challenge is unique to this browser session.")
+	.append('div').style('margin-bottom','32px')
+	.text("Do not close tab until solved.")
+	.append('div').attr('class','wordle-challenge')
 	.style('display', 'flex')
 	.style('justify-content', 'center')
 	.style('align-items', 'center')
@@ -149,31 +167,32 @@ d3.select("#wordle-league").append('div').attr('class','wordle-challenge')
 	//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
-let allPuzzles = []
-for (let i=0; i < numPuzzles; i++) {
-	// init new puzzle state
+let allPuzzles = Array.from({length: numPuzzles}, (x, i) => {
+	// init new single puzzle state
 	let puzzle = {
-		ID: i, // ID puzzles as 0-6
+		ID: i, // ID puzzles as 0..(numPuzzles-1)
 		startWord: startWordByID[i],
-		guessWords: ['     ', '     ', '     ', '     ', '     ', '     '],
+		allGuesses: Array.from({length: 6}, (x,i) => Array.from({length: 5}, (x, i) => ({letter: ' ', hint: 'tbd'}))),
+		maxGuesses: undefined,
 		cursorPos: {guessRow:0, letterCol: sharedStartWordMode ? 5 : 0},
 		// cursorPos.letterCol == 0 is waiting for the first letterCol of the guess, == 4 is waiting for the fifth letter
 		// cursorPos.letterCol == 5 means you have entered 5 letters but not pressed 'Enter' or 'Backspace' yet
 		solution: solutionByID[i],
 		finished: false,
+		finalScore: undefined
 	}
 	
 	if (sharedStartWordMode) {
-		puzzle.guessWords = [puzzle.startWord].concat(puzzle.guessWords) // get an extras guess when forced to use a shared start word
+		puzzle.allGuesses = [Array.from({length: 5}, (x, i) => ({letter: puzzle.startWord[i], hint: 'tbd'}))].concat(puzzle.allGuesses) // get an extras guess when forced to use a shared start word
 	}
-	puzzle.maxGuesses = puzzle.guessWords.length // convenience variable
+	puzzle.maxGuesses = puzzle.allGuesses.length // convenience variable
 	puzzle.finalScore = puzzle.maxGuesses + 2 // default to failure which is max guesses + 2
 	
-	allPuzzles.push(puzzle)
-}
+	return puzzle
+})
 
 // init DOM for puzzles
-updateDOMFromPuzzleStates(allPuzzles) // this is also called later from anything that changes puzzle state such as event handlers
+updateChallengeDOMFromPuzzleStates(allPuzzles) // this is also called later from anything that changes puzzle state such as event handlers
 
 d3.select('body').on('keydown', (e) => updatePuzzle(e.key))
 // event listener drives the game from here on
