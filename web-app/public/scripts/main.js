@@ -68,11 +68,11 @@ const updateChallengeDOMFromPuzzleStates = (allPuzzles) => {
 					old => old,
 					exit => exit
 					.transition().duration(339).style('opacity',0).remove()
-					)
-					// update all here because .join() returns merge of enter() and old()
-					.text(tile => tile.letter)
-					.style('background-color', tile => hintColor[tile.hint])
-				})
+				)
+				// update all here because .join() returns merge of enter() and old()
+				.text(tile => tile.letter)
+				.style('background-color', tile => hintStyle[tile.hint]['background-color']) // d3js.style() does not accept an object anymore
+			})
 	}) // end selPuzzles.each()
 	return selPuzzles
 }
@@ -131,9 +131,9 @@ const updatePuzzleFromKey = (key) => {
 // TODO: present all-time states to user, present list of all Challenges allow user to resume existing challenge or create/join new one
 // TODO: enable create/join/leave teams
 // init state for league
-let userID = 'this-session'
+let userID = 'this-session' // no user login yet
 // init DOM for league
-let selLeague = d3.select("#wordle-league").style('text-align', 'center').text('')
+const selLeague = d3.select("#wordle-league")
 
 //////////////////////// CHALLENGE ///////////////////////////////////////
 // init challenge state. A challenge is a set of 7 or 30 games with pre-selected solution order to compete among diff users
@@ -150,27 +150,30 @@ let allValidWords = possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWo
 let allValidLetters = "abcdefghijklmnopqrstuvwxyz"
 let solutionByID = removeRandomSubset(possibleSolutionWords, numPuzzles)
 let startWordByID = sharedStartWordMode ? removeRandomSubset(possibleSolutionWords, numPuzzles) : []
-const hintColor = {
-	tbd: 'black',
-	absent: '#3a3a3c',
-	present: '#b59f3b',
-	correct: '#538d4e'
+const hintStyle = {
+	tbd: {"background-color": 'black'},
+	absent: {"background-color": '#3a3a3c'},
+	present: {"background-color": '#b59f3b'},
+	correct: {"background-color": '#538d4e'}
 }
 
-// done with challenge state initialized
+// challenge state init complete
 
 // init DOM for Challenge
-let selChallenge = selLeague
-	.append('div')
-		.text("This 7 puzzle Challenge is unique to this browser session.")
-		.append('div').style('margin-bottom','32px')
-		.text("Do not close tab until solved.")
-		.append('div').attr('class','wordle-challenge')
-		.style('display', 'flex')
-		.style('justify-content', 'center')
-		.style('align-items', 'center')
-		.style('flex-direction', 'column')
-		//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
+const selLeagueTitle = selLeague.text('') // erase loading message
+	.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
+	.append('div').style('margin-bottom','2em') 
+selLeagueTitle.append('div')
+	.text("This 7 puzzle Challenge is unique to this browser session.")
+selLeagueTitle.append('div')
+	.text("Do not close tab until solved.")
+const selChallenge = selLeague
+	.append('div').attr('class','wordle-challenge')
+	.style('display', 'flex')
+	.style('justify-content', 'center')
+	.style('align-items', 'center')
+	.style('flex-direction', 'column')
+	//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
 
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
