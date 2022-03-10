@@ -77,48 +77,29 @@ const updateChallengeDOMFromPuzzleStates = (allPuzzles) => {
 	return selPuzzles
 }
 
-const updatePuzzleFromKey = (key) => {
-	if (key == 'Enter') {
-		if (allPuzzles[currentPuzzleID].finished == false) {
-			allPuzzles[currentPuzzleID].finished = true
-			const testSolution = allPuzzles[currentPuzzleID].solution.slice().split('') // make a copy as an array of letters
-			const tiles = allPuzzles[currentPuzzleID].allGuesses[allPuzzles[currentPuzzleID].cursorPos.guessRow]
-			// mark correct letters first and remove them from solution so double letter present works
-			for (let i=0; i < 5; i++) {
-				if (tiles[i].letter == testSolution[i]) { // if in the same position
-					tiles[i].hint = 'correct'
-					testSolution[i] = '?' // clear this to make double letters work
-				}
-			}
-			// now mark absent and present
-			for (let i=0; i < 5; i++) {
-				if (tiles[i].hint == 'tbd') { // only if it hasn't been marked yet
-					const pos = testSolution.indexOf(tiles[i].letter)
-					if (pos == -1) { // if not found
-						tiles[i].hint = 'absent'
-					} else {
-						tiles[i].hint = 'present'
-						testSolution[pos] = '?' // clear this to make double letters work
-					}
-				}
-			}
-		}
+const updateChallengeFromKey = (key) => {
+	// convenience renaming
+	// a tile is a letter+hint object. plural tiles is one word/guess of 5 tiles 
+	const puzzle = allPuzzles[currentPuzzleID]
+	const cursorPos = puzzle.cursorPos
+	const tiles = puzzle.allGuesses[cursorPos.guessRow]
+	if (key == 'Enter' && cursorPos.letterCol == tiles.length) { // only process Enter key at end of row
+		puzzle.finished = true
+		assignHintsCheckSolution(tiles, puzzle.solution)
 		if (currentPuzzleID < numPuzzles - 1) { // normal case
 			currentPuzzleID = currentPuzzleID + 1
 		}
-	}
-	if (key == 'Backspace') {
-		if (currentPuzzleID == numPuzzles - 1 && allPuzzles[currentPuzzleID].finished) {
+	} else if (key == 'Backspace') {
+		if (currentPuzzleID == numPuzzles - 1 && puzzle.finished) {
 			// do nothing
 		} else {
 			if (currentPuzzleID > 0) { // normal case
 				currentPuzzleID = currentPuzzleID - 1
 			}
 		}
-		allPuzzles[currentPuzzleID].finished = false
-		allPuzzles[currentPuzzleID].guesses[7] = '?????'
-	}
-	if (allValidLetters.indexOf(key.toLowerCase()) != -1) {
+		puzzle.finished = false
+		puzzle.guesses[7] = '?????'
+	} else if (allValidLetters.indexOf(key.toLowerCase()) != -1) {
 		console.log(`Guess ${key.toUpperCase()}`)
 	}
 
@@ -151,6 +132,7 @@ let allValidLetters = "abcdefghijklmnopqrstuvwxyz"
 let solutionByID = removeRandomSubset(possibleSolutionWords, numPuzzles)
 let startWordByID = sharedStartWordMode ? removeRandomSubset(possibleSolutionWords, numPuzzles) : []
 const hintStyle = {
+	invalid: {"background-color": '#3a0a0a'},
 	tbd: {"background-color": 'black'},
 	absent: {"background-color": '#3a3a3c'},
 	present: {"background-color": '#b59f3b'},
@@ -209,17 +191,18 @@ let allPuzzles = new Array(numPuzzles).fill(true).map((x, i) => {
 })
 
 // init DOM for puzzles
-updateChallengeDOMFromPuzzleStates(allPuzzles) // this is also called later from anything that changes puzzle state such as event handlers
+updateChallengeDOMFromPuzzleStates(allPuzzles)
+// must call this once to init presentation, then this is also called later from anything that changes puzzle state such as event handlers
 
-const updatePuzzleOnKeydown = (e) => {
-	updatePuzzleFromKey(e.key)
+const updateChallengeOnKeydown = (e) => {
+	updateChallengeFromKey(e.key)
 }
-const updatePuzzleOnMousedown = (e) => {
+const updateChallengeOnMousedown = (e) => {
 	console.log('mousedown event', e)
 	// TODO: from mouse down on element in keyboard element figure out a key
 	const key = ' '
-	updatePuzzleFromKey(key)
+	updateChallengeFromKey(key)
 }
-d3.select('body').on('keydown', updatePuzzleOnKeydown)
-d3.select('body').on('mousedown', updatePuzzleOnMousedown)
+d3.select('body').on('keydown', updateChallengeOnKeydown)
+d3.select('body').on('mousedown', updateChallengeOnMousedown)
 // event listener drives the game from here on

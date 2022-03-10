@@ -1,3 +1,4 @@
+'use strict'
 // helper functions that aren't necessarily wordle specific
 
 const randomIndex = length => Math.floor(Math.random() * length) // return integer between 0, length-1 inclusive
