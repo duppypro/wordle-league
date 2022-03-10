@@ -36,5 +36,3 @@ node_modules/
 # dotenv environment variables file
 .env
 
-# golly game of life binary
-**/golly-4.1-win-64bit

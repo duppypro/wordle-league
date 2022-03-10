@@ -1,0 +1,18 @@
+/*
+hints are T=tbd, A=absent, P=present, C=Correct
+
+for Guess 'speed'
+solution: 'abide'
+hints   : 'AAPAP' *not* 'AAPPP'
+
+solution: 'erase'
+hints   : 'PAPPA' same answer with buggy double letter algo
+
+solution: 'steal'
+hints   : 'CACAA' *not* 'CACPA' 
+
+solution: 'crepe'
+hints   : 'APCPA' same answer with buggy double letter algo
+
+TODO: provide letter or tile objects for this
+*/

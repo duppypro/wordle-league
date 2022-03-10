@@ -77,23 +77,29 @@ const updateChallengeDOMFromPuzzleStates = (allPuzzles) => {
 	return selPuzzles
 }
 
-const updatePuzzle = (key) => {
+const updatePuzzleFromKey = (key) => {
 	if (key == 'Enter') {
 		if (allPuzzles[currentPuzzleID].finished == false) {
-			allPuzzles[currentPuzzleID].finished = true // allways
-			let testSolution = allPuzzles[currentPuzzleID].solution.slice().split('') // make a copy as an array of letters
+			allPuzzles[currentPuzzleID].finished = true
+			const testSolution = allPuzzles[currentPuzzleID].solution.slice().split('') // make a copy as an array of letters
 			const tiles = allPuzzles[currentPuzzleID].allGuesses[allPuzzles[currentPuzzleID].cursorPos.guessRow]
+			// mark correct letters first and remove them from solution so double letter present works
 			for (let i=0; i < 5; i++) {
-				const pos = testSolution.indexOf(tiles[i].letter)
-				if (pos == -1) {
-					tiles[i].hint = 'absent'
-				} else if (pos != i) {
-					tiles[i].hint = 'present'
-					testSolution[pos] = '?' // clear this to make double letters work.  But I don't think this actually works
-				} else if (pos == i) {
+				if (tiles[i].letter == testSolution[i]) { // if in the same position
 					tiles[i].hint = 'correct'
-				} else {
-					throw "can't get here comparing pos and i"
+					testSolution[i] = '?' // clear this to make double letters work
+				}
+			}
+			// now mark absent and present
+			for (let i=0; i < 5; i++) {
+				if (tiles[i].hint == 'tbd') { // only if it hasn't been marked yet
+					const pos = testSolution.indexOf(tiles[i].letter)
+					if (pos == -1) { // if not found
+						tiles[i].hint = 'absent'
+					} else {
+						tiles[i].hint = 'present'
+						testSolution[pos] = '?' // clear this to make double letters work
+					}
 				}
 			}
 		}
@@ -156,23 +162,28 @@ const hintColor = {
 // init DOM for Challenge
 let selChallenge = selLeague
 	.append('div')
-	.text("This 7 puzzle Challenge is unique to this browser session.")
-	.append('div').style('margin-bottom','32px')
-	.text("Do not close tab until solved.")
-	.append('div').attr('class','wordle-challenge')
-	.style('display', 'flex')
-	.style('justify-content', 'center')
-	.style('align-items', 'center')
-	.style('flex-direction', 'column')
-	//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
+		.text("This 7 puzzle Challenge is unique to this browser session.")
+		.append('div').style('margin-bottom','32px')
+		.text("Do not close tab until solved.")
+		.append('div').attr('class','wordle-challenge')
+		.style('display', 'flex')
+		.style('justify-content', 'center')
+		.style('align-items', 'center')
+		.style('flex-direction', 'column')
+		//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
+
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
-let allPuzzles = Array.from({length: numPuzzles}, (x, i) => {
+let allPuzzles = new Array(numPuzzles).fill(true).map((x, i) => {
 	// init new single puzzle state
 	let puzzle = {
 		ID: i, // ID puzzles as 0..(numPuzzles-1)
 		startWord: startWordByID[i],
-		allGuesses: Array.from({length: 6}, (x,i) => Array.from({length: 5}, (x, i) => ({letter: ' ', hint: 'tbd'}))),
+		allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
+			(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
+				(x, i) => ({letter: '', hint: 'tbd'})
+			)
+		),
 		maxGuesses: undefined,
 		cursorPos: {guessRow:0, letterCol: sharedStartWordMode ? 5 : 0},
 		// cursorPos.letterCol == 0 is waiting for the first letterCol of the guess, == 4 is waiting for the fifth letter
@@ -183,7 +194,10 @@ let allPuzzles = Array.from({length: numPuzzles}, (x, i) => {
 	}
 	
 	if (sharedStartWordMode) {
-		puzzle.allGuesses = [Array.from({length: 5}, (x, i) => ({letter: puzzle.startWord[i], hint: 'tbd'}))].concat(puzzle.allGuesses) // get an extras guess when forced to use a shared start word
+		// Array.unshift() adds the start word to the front of the list
+		puzzle.allGuesses.unshift(new Array(5).fill(true).map(
+			(x, i) => ({letter: puzzle.startWord[i], hint: 'tbd'})
+		)) // get an extras guess when forced to use a shared start word
 	}
 	puzzle.maxGuesses = puzzle.allGuesses.length // convenience variable
 	puzzle.finalScore = puzzle.maxGuesses + 2 // default to failure which is max guesses + 2
@@ -194,5 +208,15 @@ let allPuzzles = Array.from({length: numPuzzles}, (x, i) => {
 // init DOM for puzzles
 updateChallengeDOMFromPuzzleStates(allPuzzles) // this is also called later from anything that changes puzzle state such as event handlers
 
-d3.select('body').on('keydown', (e) => updatePuzzle(e.key))
+const updatePuzzleOnKeydown = (e) => {
+	updatePuzzleFromKey(e.key)
+}
+const updatePuzzleOnMousedown = (e) => {
+	console.log('mousedown event', e)
+	// TODO: from mouse down on element in keyboard element figure out a key
+	const key = ' '
+	updatePuzzleFromKey(key)
+}
+d3.select('body').on('keydown', updatePuzzleOnKeydown)
+d3.select('body').on('mousedown', updatePuzzleOnMousedown)
 // event listener drives the game from here on
