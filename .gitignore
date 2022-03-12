@@ -1,0 +1,5 @@
+# if I ever need local keys for debugging
+secret*
+
+# golly game of life binary
+golly*

@@ -11,9 +11,10 @@ Allow 7 guesses if the forced start word is chosen and record failures as 9 gues
 
 TODO:
 - [X] retrieve word list, OG and NYT
-- [ ] Unique random version for this site (one off or seed based?)
-- [ ] pick from list browser local time
-- [ ] add forced random start word per team(teams not defined yet)
+- [X] Unique random version for this visit (not saved across refresh yet)
+- [ ] Save gamestate locally
+- [ ] enforce 1 per day from browser local time
+- [X] add forced random start word per team(teams not defined yet)
 - [ ] Render Wordle guess results properly
 - [ ] define teams from team UUID in URL
 - [ ] save state in local browser cache like OG Wordle

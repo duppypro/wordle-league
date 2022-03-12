@@ -1,3 +1,4 @@
+'use strict'
 const WORDLE_SET_FROM = {}
 //
 // duppy scraped from NYT Wordle website https://www.nytimes.com/games/wordle/main.bfba912f.js
