@@ -59,30 +59,50 @@ const assignHintsFromSolution = (tiles, solution) => {
 
 const updateChallengeFromKey = (challenge, key) => {
 	// convenience renaming
-	let {puzzles, currentPuzzleID: ID, numPuzzles} = challenge
+	let {puzzles, currentPuzzleID: ID, numPuzzles, sharedStartWordMode} = challenge
 	const puzzle = puzzles[ID]
 	let {guessRow: row, letterCol: col,} = puzzle.cursorPos
 	const tiles = puzzle.allGuesses[row]
 	// a tile is a letter+hint object. plural tiles is one word/guess of 5 tiles 
-	if (key == 'Enter' && col == tiles.length) { // only process Enter key at end of row
-		puzzle.finished = true
-		const valid = assignHintsFromSolution(tiles, puzzle.solution)
-		if (ID < numPuzzles - 1) { // normal case
-			ID = ID + 1
-			row, col = 0, 0
-		}
-	} else if (key == 'Backspace') {
-		if (ID == numPuzzles - 1 && puzzle.finished) {
-			// do nothing
-		} else {
-			if (ID > 0) { // normal case
-				ID = ID - 1
+	if (ID < numPuzzles) {
+		if (col == tiles.length && key == 'Enter') { // only process Enter key at end of row
+			const valid = assignHintsFromSolution(tiles, puzzle.solution)
+			const guess = tiles.map(t => t.letter).join('')
+			if (guess == puzzle.solution) {
+				puzzle.finished = true // does anything read this?
+				row++
+				puzzle.finalGuessCount = row
+				ID = ID + 1
+				if (ID < numPuzzles) {
+					puzzles[ID].cursorPos = {guessRow:0, letterCol: sharedStartWordMode ? 5 : 0}
+				}
+				let winRow = row
+				while (winRow < puzzle.maxGuesses) {
+					assignHint(puzzle.allGuesses[winRow], 'correct')
+					winRow++
+				}
+			} else if (valid) { // normal case
+				if (row < puzzle.maxGuesses - 1) {
+					row++
+					col = 0
+				} else { // this was last guess
+					puzzle.finished = true // does anything read this?
+					row++
+					puzzle.finalGuessCount = row + 1 // 1 guess penalty for loss
+					ID = ID + 1
+					if (ID < numPuzzles) {
+						puzzles[ID].cursorPos = {guessRow:0, letterCol: sharedStartWordMode ? 5 : 0}
+					}
+				}
 			}
+		} else if (col > 0 && key == 'Backspace') {
+			col--
+			tiles[col].letter = ''
+			assignHint(tiles, 'tbd') // overkill = clears the invalid guess case
+		} else if (col < tiles.length && allValidLetters.indexOf(key.toLowerCase()) != -1) {
+			tiles[col].letter = key
+			col++
 		}
-		puzzle.finished = false
-		puzzle.guesses[7] = '?????'
-	} else if (allValidLetters.indexOf(key.toLowerCase()) != -1) {
-		console.log(`Guess ${key.toUpperCase()}`)
 	}
 	// assign primitives that could have changed before returning
 	challenge.currentPuzzleID = ID
