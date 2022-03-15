@@ -6,10 +6,14 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 
 	// Update progress and final score
 	selChallenge.select('.wordle-challenge-score')
-		.text(
-			`|| This Challenge Progress: ${currentPuzzleID}/${numPuzzles} |||||| `
-			+ `Final Score (average guesses): ${puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles} ||`	
-			)
+		.html(
+			`Challenge Progress: ${currentPuzzleID}/${numPuzzles}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			+ `Final Score (avg. guesses): ${
+				currentPuzzleID == numPuzzles
+					? puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles
+					: '-'
+			}`	
+		)
 
 	// always recreate this because both DOM and puzzles might have changed
 	let selPuzzles = selChallenge.selectAll('div.wordle-puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
@@ -36,11 +40,11 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// for each puzzle add/update 6 or 7 guess rows
 	selPuzzles.each((puzzle, i, nodes) => { //this is called for each div.wordle-puzzle DOM element
 		//puzzleState (puzzle)
-		d3.select(nodes[i]).selectAll('div.guessRow') // NYT Wordle calls this 'game-row.row'
+		d3.select(nodes[i]).selectAll('div.guess-row') // NYT Wordle calls this 'game-row.row'
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
-					.append('div').attr('class','guessRow')
+					.append('div').attr('class','guess-row')
 					.style('display', 'grid')
 					.style('grid-template-columns', 'repeat(5, 1fr)')
 					.style('grid-gap', '5px'),
@@ -79,6 +83,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				)
 				// update all here because .join() returns merge of enter() and old()
 				.text(tile => tile.letter)
+				.attr('hint', tile => tile.hint)
 				.style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
 			})
 	}) // end selPuzzles.each()

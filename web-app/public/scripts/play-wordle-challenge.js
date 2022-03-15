@@ -21,8 +21,8 @@ let challengeID = 'session-only' // only one challenge per session now
 // challenge options
 let challenge = { // TODO: refactor this to use new WordleChallenge(options)
 	currentPuzzleID: 0,
-	numPuzzles: 7, // TODO: refactor to make this configurable
-	sharedStartWordMode: true, // only handle this case for now
+	numPuzzles: 5, // TODO: refactor to make this configurable
+	sharedStartWordMode: false,
 }
 challenge.puzzles = new Array(challenge.numPuzzles).fill(true)
 challenge.solutionByID = removeRandomSubset(possibleSolutionWords, challenge.numPuzzles),
@@ -31,10 +31,13 @@ challenge.startWordByID = challenge.sharedStartWordMode ? removeRandomSubset(pos
 
 // init DOM for Challenge
 const selLeagueTitle = selLeague.text('') // erase loading message
-	.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
+	.style('font-family', 'Lucida,Helvetica,sans-serif')
 	.append('div').style('margin-bottom','2em') 
-selLeagueTitle.append('div').text("This 7 puzzle Challenge is unique to this browser session.")
-selLeagueTitle.append('div').text("Do not close tab until solved.")
+selLeagueTitle.append('div').html(
+	"<h3> Wordle Challenge <h3>"
+	//+ "<br>"
+	+ "<p>This 5 puzzle Challenge is unique to this session.<br>Do not close tab until solved.</p>"
+)
 
 const selChallenge = selLeague
 .append('div').attr('class','wordle-challenge')
@@ -42,9 +45,7 @@ const selChallenge = selLeague
 .style('align-items', 'center').style('flex-direction', 'column')
 //.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
 
-selChallenge.append('div').text('=======================================================')
 selChallenge.append('div').attr('class','wordle-challenge-score')
-selChallenge.append('div').text('=======================================================')
 	.style('margin-bottom','2em')
 
 //////////////////////////// PUZZLE ///////////////////////////////////////
@@ -57,7 +58,7 @@ challenge.puzzles = challenge.puzzles.map((x, i) => {
 		startWord: challenge.startWordByID[i],
 		allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
 			(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
-				(x, i) => ({letter: '', hint: 'tbd'})
+				(x, i) => ({letter: '', hint: 'empty'})
 			)
 		),
 		maxGuesses: undefined,
