@@ -9,8 +9,6 @@
 // init state for league
 let userID = 'this-session' // no user login yet
 // init DOM for league
-const selLeague = d3.select("#wordle-league")
-
 //////////////////////// CHALLENGE ///////////////////////////////////////
 // init challenge state. A challenge is a set of 7 or 30 games with pre-selected solution order to compete among diff users
 // TODO: offer choice of word set. Defaulting to original
@@ -30,23 +28,7 @@ challenge.startWordByID = challenge.sharedStartWordMode ? removeRandomSubset(pos
 // challenge state init complete
 
 // init DOM for Challenge
-const selLeagueTitle = selLeague.text('') // erase loading message
-	.style('font-family', 'Lucida,Helvetica,sans-serif')
-	.append('div').style('margin-bottom','2em') 
-selLeagueTitle.append('div').html(
-	"<h3> Wordle Challenge <h3>"
-	//+ "<br>"
-	+ "<p>This 5 puzzle Challenge is unique to this session.<br>Do not close tab until solved.</p>"
-)
-
-const selChallenge = selLeague
-.append('div').attr('class','wordle-challenge')
-.style('display', 'flex').style('justify-content', 'center')
-.style('align-items', 'center').style('flex-direction', 'column')
-//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
-
-selChallenge.append('div').attr('class','wordle-challenge-score')
-	.style('margin-bottom','2em')
+const selChallenge = d3.select('#challenge') // TODO: this references DOM?  move this to wordle-DOM-UI module? or is this the right place because this is where both update DOM and update state functions are called?
 
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
