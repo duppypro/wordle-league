@@ -1,5 +1,5 @@
 	/* Fonts */
-/**/
+	/**/
 	/* Global Styles & Colors */
 	:root {
 		--green: #6aaa64;
@@ -16,13 +16,13 @@
 		--blue: #85c0f9;
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-size: 16px;
-		--header-height: 50px;
-		--score-height: 50px;
-		--keyboard-height: 200px;
-		--game-max-width: 500px;
+		--header-height: 40px;
+		--score-height: 60px;
+		--keyboard-height: 120px;
+		--game-max-width: 360px;
 
 		/* icons */
-/**/
+		/**/
 	}
 
 	/* Light theme colors */
@@ -51,13 +51,15 @@
 		--opacity-50: rgba(0, 0, 0, 0.5);
 
 		/* dark mode icons */
-/**/
+		/**/
 	}
+
 	/* Constant colors and colors derived from theme */
 	:root,
 	.nightmode {
 		--color-background: var(--color-tone-7);
 	}
+
 	:root {
 		--color-present: var(--yellow);
 		--color-correct: var(--green);
@@ -72,6 +74,7 @@
 		--key-bg-absent: var(--color-absent);
 		--modal-content-bg: var(--color-tone-7);
 	}
+
 	.nightmode {
 		--color-present: var(--darkendYellow);
 		--color-correct: var(--darkendGreen);
@@ -86,6 +89,7 @@
 		--key-bg-absent: var(--color-absent);
 		--modal-content-bg: var(--color-tone-7);
 	}
+
 	.colorblind {
 		--color-correct: var(--orange);
 		--color-present: var(--blue);
@@ -98,6 +102,7 @@
 	html {
 		height: 100%;
 	}
+
 	body {
 		height: 100%;
 		background-color: var(--color-background);
@@ -106,172 +111,274 @@
 		/* Prevent scrollbar appearing on page transition */
 		/* overflow-y: hidden; */
 	}
-	
-/* below this is style from game-app shadow root */
 
-  #challenge {
-    width: 100%;
-    max-width: var(--game-max-width);
-    margin: 0 auto;
-    height: calc(100% - var(--header-height) - var(--score-height));
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    padding: 0 16px;
-    height: var(--header-height);
-    color: var(--color-tone-1);
-    border-bottom: 1px solid var(--color-tone-4);
-  }
-  header .title {
-    font-family: 'Lucida,Helvetica,sans-serif';
-    font-weight: 700;
-    font-size: 37px;
-    line-height: 100%;
-    letter-spacing: 0.01em;
-    text-align: center;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-  }
-  #challenge-score {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    padding: 0 16px;
-    height: var(--score-height);
-    color: var(--color-tone-1);
-    border-bottom: 1px solid var(--color-tone-4);
-    font-family: 'Lucida,Helvetica,sans-serif';
-    font-weight: normal;
-    font-size: 16px;
-    line-height: 100%;
-    letter-spacing: 0.01em;
-    text-align: center;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-  }
-  .menu-left {
-    display: flex;
-    margin: 0;
-    padding: 0;
-    align-items: center;
-    width: 70px;
-    justify-content: flex-start;
-  }
-  .menu-right {
-    display: flex;
-    width: 70px;
-    justify-content: flex-end;
-  }
+	/* below this is style from game-app shadow root */
 
-  @media (min-width: 415px) {
-    header {
-      padding: 0px 16px;
-    }
-  }
+	#challenge {
+		width: 100%;
+		max-width: var(--game-max-width);
+		margin: 0 auto;
+		height: calc(100% - var(--header-height) - var(--score-height));
+		display: flex;
+		flex-direction: column;
+	}
 
-  @media (max-width: 360px) {
-    header .title {
-      font-size: 22px;
-      letter-spacing: 0.1rem;
-    }
-  }
+	header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: nowrap;
+		padding: 0 16px;
+		height: var(--header-height);
+		color: var(--color-tone-1);
+		border-bottom: 1px solid var(--color-tone-4);
+	}
 
-  .puzzle-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    overflow: hidden;
-  }
-  .puzzle {
-    display: grid;
-    grid-template-rows: repeat(6, 1fr);
-    grid-gap: 5px;
-    padding:10px;
-    box-sizing: border-box;
-    color: var(--color-tone-1);
-	width: 350px;
-	/* height: 420px; set this programmatically based on numguesses in game*/
-  }
-  button.icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0 4px;
-  }
+	header .title {
+		font-family: 'Lucida,Helvetica,sans-serif';
+		font-weight: 700;
+		font-size: 37px;
+		line-height: 100%;
+		letter-spacing: 0.01em;
+		text-align: center;
+		left: 0;
+		right: 0;
+		pointer-events: none;
+	}
 
-/* below for .game-row */
+	#challenge-score {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: nowrap;
+		padding: 0 16px;
+		height: var(--score-height);
+		color: var(--color-tone-1);
+		border-bottom: 1px solid var(--color-tone-4);
+		font-family: 'Lucida,Helvetica,sans-serif';
+		font-weight: normal;
+		font-size: 16px;
+		line-height: 100%;
+		letter-spacing: 0.01em;
+		text-align: center;
+		left: 0;
+		right: 0;
+		pointer-events: none;
+	}
 
-.game-row  {
-	display: block;
-  }
+	.menu-left {
+		display: flex;
+		margin: 0;
+		padding: 0;
+		align-items: center;
+		width: 70px;
+		justify-content: flex-start;
+	}
 
-  .row {
-	display: grid;
-	grid-template-columns: repeat(5, 1fr);
-	grid-gap: 5px;
-  }
+	.menu-right {
+		display: flex;
+		width: 70px;
+		justify-content: flex-end;
+	}
 
-  /* below from game-tile shadow root */
-  
-.game-tile {
-    display: inline-block;
-  }
-  .tile {
-    width: 100%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    line-height: 2rem;
-    font-weight: bold;
-    vertical-align: middle;
-    box-sizing: border-box;
-    color: var(--tile-text-color);
-    text-transform: uppercase;
-    user-select: none;
-  }
-  .tile::before {
-    content: '';
-    display: inline-block;
-    padding-bottom: 100%;
-  }
+	@media (min-width: 415px) {
+		header {
+			padding: 0px 16px;
+		}
+	}
 
-  /* Allow tiles to be smaller on small screens */
-  @media (max-height: 600px) {
-    .tile {
-      font-size: 1em;
-      line-height: 1em;
-    }
-  }
+	@media (max-width: 360px) {
+		header .title {
+			font-size: 22px;
+			letter-spacing: 0.1rem;
+		}
+	}
 
-  .tile[hint='empty'] {
-    border: 2px solid var(--color-tone-4);
-  }
-  .tile[hint='tbd'] {
-    background-color: var(--color-tone-7);
-    border: 2px solid var(--color-tone-3);
-    color: var(--color-tone-1);
-  }
-  .tile[hint='correct'] {
-    background-color: var(--color-correct);
-  }
-  .tile[hint='present'] {
-    background-color: var(--color-present);
-  }
-  .tile[hint='absent'] {
-    background-color: var(--color-absent);
-  }
-  .tile[hint='invalid'] {
-    background-color: var(--color-invalid);
-  }
+	.puzzle-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-grow: 1;
+		overflow: hidden;
+	}
+
+	.puzzle {
+		display: grid;
+		grid-template-rows: repeat(6, 1fr);
+		grid-gap: 5px;
+		padding: 10px;
+		box-sizing: border-box;
+		color: var(--color-tone-1);
+		width: 350px;
+		/* height: 420px; set this programmatically based on numguesses in game*/
+	}
+
+	button.icon {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0 4px;
+	}
+
+	/* below for .game-row */
+
+	.game-row {
+		display: block;
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		grid-gap: 5px;
+	}
+
+	/* below from game-tile shadow root */
+
+	.game-tile {
+		display: inline-block;
+	}
+
+	.tile {
+		width: 100%;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 2rem;
+		line-height: 2rem;
+		font-weight: bold;
+		vertical-align: middle;
+		box-sizing: border-box;
+		color: var(--tile-text-color);
+		text-transform: uppercase;
+		user-select: none;
+	}
+
+	.tile::before {
+		content: '';
+		display: inline-block;
+		padding-bottom: 100%;
+	}
+
+	/* Allow tiles to be smaller on small screens */
+	@media (max-height: 600px) {
+		.tile {
+			font-size: 1em;
+			line-height: 1em;
+		}
+	}
+
+	.tile[hint='empty'] {
+		border: 2px solid var(--color-tone-4);
+	}
+
+	.tile[hint='tbd'] {
+		background-color: var(--color-tone-7);
+		border: 2px solid var(--color-tone-3);
+		color: var(--color-tone-1);
+	}
+
+	.tile[hint='correct'] {
+		background-color: var(--color-correct);
+	}
+
+	.tile[hint='present'] {
+		background-color: var(--color-present);
+	}
+
+	.tile[hint='absent'] {
+		background-color: var(--color-absent);
+	}
+
+	.tile[hint='invalid'] {
+		background-color: var(--color-invalid);
+	}
+
+	/* Below is game-keyboard shadow style */
+
+	#challenge-keyboard {
+		height: var(--keyboard-height);
+	}
+
+	#keyboard {
+		margin: 0 8px;
+		user-select: none;
+	}
+
+	#challenge-keyboard .row {
+		display: flex;
+		width: 100%;
+		margin: 0 auto 8px;
+		/* https://stackoverflow.com/questions/46167604/ios-html-disable-double-tap-to-zoom */
+		touch-action: manipulation;
+	}
+
+	#challenge-keyboard button {
+		font-family: inherit;
+		font-weight: bold;
+		border: 0;
+		padding: 0;
+		margin: 0 6px 0 0;
+		height: 58px;
+		border-radius: 4px;
+		cursor: pointer;
+		user-select: none;
+		background-color: var(--key-bg);
+		color: var(--key-text-color);
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-transform: uppercase;
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
+	}
+
+	#challenge-keyboard button:focus {
+		outline: none;
+	}
+
+	#challenge-keyboard button.fade {
+		transition: background-color 0.1s ease, color 0.1s ease;
+	}
+
+	#challenge-keyboard button:last-of-type {
+		margin: 0;
+	}
+
+	#challenge-keyboard .half {
+		flex: 0.5;
+	}
+
+	#challenge-keyboard .one {
+		flex: 1;
+	}
+
+	#challenge-keyboard .one-and-a-half {
+		flex: 1.5;
+		font-size: 12px;
+	}
+
+	#challenge-keyboard .two {
+		flex: 2;
+	}
+
+	#challenge-keyboard button[hint='tbd'] {
+		background-color: var(--key-bg);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='correct'] {
+		background-color: var(--key-bg-correct);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='present'] {
+		background-color: var(--key-bg-present);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='absent'] {
+		background-color: var(--key-bg-absent);
+		color: var(--key-evaluated-text-color);
+	}

@@ -17,15 +17,18 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 
 	// always recreate this because both DOM and puzzles might have changed
 	let selPuzzles = selChallenge.select("#challenge-puzzles").selectAll('div.puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
-		.data(puzzles) // make a puzzle element for each puzzle in this challenge
+		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
+		.data([puzzles[currentPuzzleID]], d => d.ID) // show only current puzzle
 		.join(
 			enter => enter
 				.append('div').attr('class', 'puzzle-container')
 				.append('div').attr('class', 'puzzle')
-				.style('height', sharedStartWordMode ? '510px' : '440px'), // create puzzle boards that are new to the array allPuzzles
-			old => old,
+				.style('height', sharedStartWordMode ? '510px' : '440px') // create puzzle boards that are new to the array allPuzzles
+				.style('transform','translate(400px)')
+				.transition().duration(340).style('transform','translate(0px)').delay(670),
+			old => {old.each((p)=>console.log('old puzzle', currentPuzzleID, ' : ', p)); return old},
 			exit => exit
-				.transition().duration(340).style('opacity',0).remove()
+				.transition().duration(340).style('transform','translate(-400px)').delay(340).remove(), // TODO: remove the container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
 		.text(puzzle => 
@@ -47,8 +50,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 					.append('div').attr('class','game-row')
 					.append('div').attr('class','row'),
 				old => old, // this
-				exit => exit
-					.transition().duration(340).style('opacity',0).remove()
+				exit => exit,
 				)
 			// now for all entered and old guess rows create letters
 			.each((guessRow, i, nodes) => {
@@ -59,8 +61,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 						.append('div').attr('class','game-tile')
 						.append('div').attr('class','tile'),
 					old => old,
-					exit => exit
-						.transition().duration(340).style('opacity',0).remove()
+					exit => exit,
 				)
 				// update all here because .join() returns merge of enter() and old()
 				.text(tile => tile.letter)
@@ -68,4 +69,10 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				// .style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
 			})
 	}) // end selPuzzles.each()
+
+	// overkill update all hints here so they show even on exiting DOM elements.  Optimize later
+	selChallenge.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
+		.text(tile => tile.letter)
+		.attr('hint', tile => tile.hint)
+
 }
