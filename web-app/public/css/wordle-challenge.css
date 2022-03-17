@@ -17,7 +17,7 @@
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-size: 16px;
 		--header-height: 40px;
-		--score-height: 60px;
+		--score-height: 64px;
 		--keyboard-height: 120px;
 		--game-max-width: 360px;
 
@@ -118,7 +118,7 @@
 		width: 100%;
 		max-width: var(--game-max-width);
 		margin: 0 auto;
-		height: calc(100% - var(--header-height) - var(--score-height));
+		height: calc(100% - var(--header-height));
 		display: flex;
 		flex-direction: column;
 	}
@@ -142,29 +142,35 @@
 		line-height: 100%;
 		letter-spacing: 0.01em;
 		text-align: center;
-		left: 0;
-		right: 0;
 		pointer-events: none;
 	}
 
+	#challenge-puzzles {
+		position: relative;
+		width: 360px;
+		height: calc(100% - var(--score-height) - var(--keyboard-height));
+		/* height: inherit; */
+		padding: 0px 0px 16px 0px;
+		overflow: hidden;
+	}
 	#challenge-score {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
+		/* display: flex;
+		flex-direction: row; */
+		/* align-items: center;
 		justify-content: center;
-		flex-wrap: nowrap;
-		padding: 0 16px;
-		height: var(--score-height);
+		flex-wrap: nowrap; */
+		/* padding: 0 16px; */
+		/* height: var(--score-height); */
 		color: var(--color-tone-1);
-		border-bottom: 1px solid var(--color-tone-4);
+		border-bottom: 2px solid var(--color-tone-4);
 		font-family: inherit;
 		font-weight: normal;
 		font-size: 16px;
-		line-height: 100%;
+		line-height: var(--score-height);
 		letter-spacing: 0.01em;
 		text-align: center;
-		left: 0;
-		right: 0;
+		/* left: 0;
+		right: 0; */
 		pointer-events: none;
 	}
 
@@ -197,23 +203,33 @@
 	}
 
 	.puzzle-container {
+		color: var(--tile-text-color);
+		position: absolute;
+		/* left: 50%; */
+		/* top: 0px; */
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		text-align: center;
 		flex-grow: 1;
+		flex-direction: column;
 		overflow: hidden;
+	}
+
+	.puzzle-score {
+		line-height: 2em;
+		text-align: center;
 	}
 
 	.puzzle {
 		display: grid;
 		grid-template-rows: repeat(6, 1fr);
 		grid-gap: 5px;
-		padding: 10px;
+		padding: 0px 0px 10px 0px;
 		box-sizing: border-box;
 		color: var(--color-tone-1);
-		width: 350px;
-		/* height: 420px; set this programmatically based on numguesses in game*/
+		width: 300px;
+		/* height: 120px; override this programmatically based on numGuesses in game if needed */
 	}
 
 	button.icon {

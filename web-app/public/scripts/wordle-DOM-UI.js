@@ -1,5 +1,6 @@
 'use strict'
 ///////////////////////// WORDLE UI FUNCTIONS //////////////////
+const beat = 666//333
 const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// convenience renaming
 	let {puzzles, currentPuzzleID, numPuzzles, sharedStartWordMode} = challenge // TODO: refactor globals like sharedStartWordMode and others?
@@ -16,22 +17,32 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 		)
 
 	// always recreate this because both DOM and puzzles might have changed
-	let selPuzzles = selChallenge.select("#challenge-puzzles").selectAll('div.puzzle-container div.puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
+	selChallenge
+		.select("#challenge-puzzles")
+		.style('height', `${17 + (5+52+2+2)*(challenge.puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
+		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
-		.data([puzzles[currentPuzzleID]], d => d.ID) // show only current puzzle
+		.data(puzzles, puzzle => puzzle.ID)
 		.join(
-			enter => enter
-				.append('div').attr('class', 'puzzle-container').append('div').attr('class', 'puzzle')
-				.style('height', sharedStartWordMode ? '510px' : '440px') // create puzzle boards that are new to the array allPuzzles
-				.style('transform','translate(400px)')
-				.transition().duration(340).style('transform','translate(0px)').delay(670),
-			old => {old.each((p)=>console.log('old puzzle', currentPuzzleID, ' : ', p)); return old},
+			enter => {
+				const selContainer = enter.append('div').attr('class', 'puzzle-container')
+				selContainer.append('div').attr('class', 'puzzle-score')
+				selContainer.append('div').attr('class', 'puzzle')
+					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
+				selContainer
+					.style('left', puzzle => `${360 + 360*(puzzle.ID - currentPuzzleID)}px`)
+					return selContainer
+			},
+			old => old,
 			exit => exit
-				.transition().duration(340).style('transform','translate(-400px)').delay(340)
+				.transition().duration(2*beat).style('left','translate(-300%)').delay(beat/2)
 				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.html(puzzle => 
+		.transition().duration(2*beat).style('left', puzzle => `${30 + 360*(puzzle.ID - currentPuzzleID)}px`).delay(beat/2)
+		// TODO: the 30 and 360 are hard-coded, should be computed from game width
+	selChallenge
+		.selectAll('div.puzzle-score').html(puzzle => 
 			`Puzzle #${puzzle.ID+1}`
 			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
 			+ `Score: ${puzzle.finished ? puzzle.finalGuessCount : puzzle.cursorPos.guessRow}/${puzzle.maxGuesses}`
@@ -41,9 +52,10 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 		//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
 	
 	// for each puzzle add/update 6 or 7 guess rows
-	selPuzzles.each((puzzle, i, nodes) => { //this is called for each div.puzzle DOM element
+	selChallenge.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
+		//this is called for each div.puzzle DOM element
 		//puzzleState (puzzle)
-		d3.select(nodes[i]).selectAll('div.game-row') // NYT Wordle calls this 'game-row.row'
+		d3.select(this).selectAll('div.game-row') // NYT Wordle calls this 'game-row.row'
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
@@ -53,8 +65,8 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				exit => exit,
 				)
 			// now for all entered and old guess rows create letters
-			.each((guessRow, i, nodes) => {
-				d3.select(nodes[i]).selectAll('div.game-tile div.tile') // NYT Wordle calls this 'game-tile div.tile'
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.game-tile div.tile') // NYT Wordle calls this 'game-tile div.tile'
 				.data(guessRow)
 				.join(
 					enter => enter
