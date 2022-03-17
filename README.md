@@ -15,7 +15,7 @@ TODO:
 - [ ] Save gamestate locally
 - [ ] enforce 1 per day from browser local time
 - [X] add forced random start word per team(teams not defined yet)
-- [ ] Render Wordle guess results properly
+- [X] Render Wordle guess results properly
 - [ ] define teams from team UUID in URL
 - [ ] save state in local browser cache like OG Wordle
 - [ ] add OAUTH2 and save state with OAUTH2 
