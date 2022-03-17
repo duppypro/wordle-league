@@ -7,8 +7,8 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// Update progress and final score
 	selChallenge.select('#challenge-score')
 		.html(
-			`Challenge Progress: ${currentPuzzleID}/${numPuzzles}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
-			+ `Final Score (avg. guesses): ${
+			`Progress: ${currentPuzzleID} of ${numPuzzles}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			+ `Final Score: ${
 				currentPuzzleID == numPuzzles
 					? puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles
 					: '-'
@@ -16,25 +16,25 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 		)
 
 	// always recreate this because both DOM and puzzles might have changed
-	let selPuzzles = selChallenge.select("#challenge-puzzles").selectAll('div.puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
+	let selPuzzles = selChallenge.select("#challenge-puzzles").selectAll('div.puzzle-container div.puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
 		.data([puzzles[currentPuzzleID]], d => d.ID) // show only current puzzle
 		.join(
 			enter => enter
-				.append('div').attr('class', 'puzzle-container')
-				.append('div').attr('class', 'puzzle')
+				.append('div').attr('class', 'puzzle-container').append('div').attr('class', 'puzzle')
 				.style('height', sharedStartWordMode ? '510px' : '440px') // create puzzle boards that are new to the array allPuzzles
 				.style('transform','translate(400px)')
 				.transition().duration(340).style('transform','translate(0px)').delay(670),
 			old => {old.each((p)=>console.log('old puzzle', currentPuzzleID, ' : ', p)); return old},
 			exit => exit
-				.transition().duration(340).style('transform','translate(-400px)').delay(340).remove(), // TODO: remove the container
+				.transition().duration(340).style('transform','translate(-400px)').delay(340)
+				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.text(puzzle => 
-			`Puzzle #${puzzle.ID+1} ||`
-			+ ` Guesses: ${puzzle.cursorPos.guessRow} /`
-			+ ` Final Score: ${puzzle.finished ? puzzle.finalGuessCount : '-'} of ${puzzle.maxGuesses}`
+		.html(puzzle => 
+			`Puzzle #${puzzle.ID+1}`
+			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			+ `Score: ${puzzle.finished ? puzzle.finalGuessCount : puzzle.cursorPos.guessRow}/${puzzle.maxGuesses}`
 		)
 		// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
 		//       except update only includes elements before the enter
