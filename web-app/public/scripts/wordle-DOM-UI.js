@@ -1,9 +1,50 @@
 'use strict'
 ///////////////////////// WORDLE UI FUNCTIONS //////////////////
-const beat = 666//333
+const beat = 666//333 // for animations. units are ms
+
+const createKeyboardDOM = (selKeyboard) => {
+	const sel = selKeyboard.append('div').attr('id','keyboard')
+
+	let keys = Array.from("qwertyuiop")
+	let selRow = sel.append('div').attr('class','row')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+
+	keys = Array.from("asdfghjkl")
+	selRow = sel.append('div').attr('class','row')
+	selRow.append('div')
+		.attr('class','half')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+	selRow.append('div')
+		.attr('class','half')
+
+	keys = Array.from("zxvcbnm")
+	selRow = sel.append('div').attr('class','row')
+	selRow.append('button')
+		.attr('class','one-and-a-half').text('Enter')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+	selRow.append('button')
+		.attr('class','one-and-a-half').text('←')
+		.style('font-size','18px')
+}
+
+const drawKeyboardHints = (selKeyboard, guessedLetters, solution) => {
+	console.log(guessedLetters)
+}
+
 const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// convenience renaming
 	let {puzzles, currentPuzzleID, numPuzzles, sharedStartWordMode} = challenge // TODO: refactor globals like sharedStartWordMode and others?
+
+	// create DOM elements for keyboard and attach touch listeners if it doesn't exist yet
+	if (selChallenge.select('#challenge-keyboard').select('*').empty()) {
+		createKeyboardDOM(selChallenge.select('#challenge-keyboard'))
+	}
 
 	// Update progress and final score
 	selChallenge.select('#challenge-score')
@@ -31,10 +72,10 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
 					.style('left', puzzle => `${360 + 360*(puzzle.ID - currentPuzzleID)}px`)
-					return selContainer
+				return selContainer
 			},
 			old => old,
-			exit => exit
+			exit => exit // NOTE: these never exit yet - untested
 				.transition().duration(2*beat).style('left','translate(-300%)').delay(beat/2)
 				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
@@ -55,7 +96,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 	selChallenge.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
 		//this is called for each div.puzzle DOM element
 		//puzzleState (puzzle)
-		d3.select(this).selectAll('div.game-row') // NYT Wordle calls this 'game-row.row'
+		d3.select(this).selectAll('div.game-row')
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
@@ -66,7 +107,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				)
 			// now for all entered and old guess rows create letters
 			.each(function (guessRow) {
-				d3.select(this).selectAll('div.game-tile div.tile') // NYT Wordle calls this 'game-tile div.tile'
+				d3.select(this).selectAll('div.game-tile div.tile')
 				.data(guessRow)
 				.join(
 					enter => enter
@@ -82,7 +123,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 			})
 	}) // end selPuzzles.each()
 
-	// overkill update all hints here so they show even on exiting DOM elements.  Optimize later
+	// NOTE: overkill - update all hints here so they show even on exiting DOM elements.  Optimize later
 	selChallenge.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
 		.text(tile => tile.letter)
 		.attr('hint', tile => tile.hint)

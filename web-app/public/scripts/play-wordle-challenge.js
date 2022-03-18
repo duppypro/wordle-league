@@ -74,13 +74,14 @@ const updateChallengeOnKeydown = (e) => {
 	updateChallengeFromKey(challenge, e.key)
 	updateDOMFromChallenge(selChallenge, challenge)
 }
+
 const updateChallengeOnMousedown = (e) => {
-	console.log('mousedown event', e)
-	// TODO: from mouse down on element in keyboard element figure out a key
-	const key = ' '
-	updateChallengeFromKey(challenge, key) // updates state only
-	updateDOMFromChallenge(selChallenge, challenge) // updates UI only
+	const key = e && e.toElement && e.toElement.innerText
+	if (key) {
+		updateChallengeFromKey(challenge, key) // updates state only
+		updateDOMFromChallenge(selChallenge, challenge) // updates UI only
+	}
 }
 d3.select('body').on('keydown', updateChallengeOnKeydown)
-//d3.select('body').on('mousedown', updateChallengeOnMousedown)
+d3.select('#keyboard').on('mousedown', updateChallengeOnMousedown)
 // event listener drives the game from here on

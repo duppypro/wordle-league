@@ -18,7 +18,7 @@
 		font-size: 16px;
 		--header-height: 40px;
 		--score-height: 64px;
-		--keyboard-height: 120px;
+		--keyboard-height: 159px;
 		--game-max-width: 360px;
 
 		/* icons */
@@ -109,7 +109,7 @@
 		margin: 0;
 		padding: 0;
 		/* Prevent scrollbar appearing on page transition */
-		/* overflow-y: hidden; */
+		overflow-y: hidden;
 	}
 
 	/* below this is style from game-app shadow root */
@@ -149,18 +149,10 @@
 		position: relative;
 		width: 360px;
 		height: calc(100% - var(--score-height) - var(--keyboard-height));
-		/* height: inherit; */
 		padding: 0px 0px 16px 0px;
 		overflow: hidden;
 	}
 	#challenge-score {
-		/* display: flex;
-		flex-direction: row; */
-		/* align-items: center;
-		justify-content: center;
-		flex-wrap: nowrap; */
-		/* padding: 0 16px; */
-		/* height: var(--score-height); */
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
 		font-family: inherit;
@@ -169,8 +161,7 @@
 		line-height: var(--score-height);
 		letter-spacing: 0.01em;
 		text-align: center;
-		/* left: 0;
-		right: 0; */
+		right: 0;
 		pointer-events: none;
 	}
 
@@ -319,14 +310,14 @@
 	}
 
 	#keyboard {
-		margin: 0 8px;
+		margin: 0 0px;
 		user-select: none;
 	}
 
 	#challenge-keyboard .row {
 		display: flex;
 		width: 100%;
-		margin: 0 auto 8px;
+		margin: 0 auto 4px;
 		/* https://stackoverflow.com/questions/46167604/ios-html-disable-double-tap-to-zoom */
 		touch-action: manipulation;
 	}
@@ -336,8 +327,8 @@
 		font-weight: bold;
 		border: 0;
 		padding: 0;
-		margin: 0 6px 0 0;
-		height: 58px;
+		margin: 0 1px 0 0;
+		height: 48px;
 		border-radius: 4px;
 		cursor: pointer;
 		user-select: none;

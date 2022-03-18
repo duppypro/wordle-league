@@ -12,7 +12,7 @@ const hintColor = { // TODO: move colors to CSS make this an attribute
 
 const allValidLetters = "abcdefghijklmnopqrstuvwxyz"
 const possibleSolutionWords = Array.from(WORDLE_SET_FROM.OG.possibleSolutionWords)
-const allValidWords = possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
+const allValidWords = WORDLE_SET_FROM.OG.possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
 
 const assignHint = (tiles, hint) => {
 	// set the hint property of all tiles to hint parameter
@@ -58,7 +58,7 @@ const assignHintsFromSolution = (tiles, solution) => {
 	// return true means guess was a valid word and puzzle should advance to next guess or record a win
 }
 
-const updateChallengeFromKey = (challenge, key) => {
+const updateChallengeFromKey = (challenge, key_) => {
 	// convenience renaming
 	let {
 		puzzles,
@@ -66,6 +66,7 @@ const updateChallengeFromKey = (challenge, key) => {
 		numPuzzles,
 		sharedStartWordMode,
 	} = challenge
+	const key = (key_ && key_.length == 1) ? key_.toLowerCase() : key_
 	const puzzle = puzzles[ID]
 	let {
 		guessRow: row,
@@ -75,7 +76,7 @@ const updateChallengeFromKey = (challenge, key) => {
 	// a tile is a letter+hint object. plural tiles is one word/guess of 5 tiles 
 	if (ID < numPuzzles) { // if challenge isn't finished with all puzzles
 		if (col == tiles.length
-		 && key == 'Enter') { // only process Enter key at end of row
+		 && (key == 'Enter' || key == 'ENTER')) { // only process Enter key at end of row
 			const valid = assignHintsFromSolution(tiles, puzzle.solution)
 			const guessAsString = tiles.map(t => t.letter).join('')
 			if (guessAsString == puzzle.solution) {
@@ -89,11 +90,13 @@ const updateChallengeFromKey = (challenge, key) => {
 						letterCol: sharedStartWordMode ? 5 : 0,
 					}
 				}
+				// win animation here, for now it just fills the remaining rows
 				let winRow = row
 				while (winRow < puzzle.maxGuesses) {
 					assignHint(puzzle.allGuesses[winRow], 'correct')
 					winRow++
 				}
+				// TODO: Also clear keyboard hints. Do it in the data or just the DOM hint styles?
 			} else if (valid) { // normal case
 				if (row < puzzle.maxGuesses - 1) {
 					row++
@@ -112,7 +115,7 @@ const updateChallengeFromKey = (challenge, key) => {
 				}
 			} // ignore 'Enter' if guess is not valid, wait for 'Backspace'
 		} else if (col > 0 
-			    && key == 'Backspace') {
+			    && (key == 'Backspace' || key == '←')) {
 			col--
 			tiles[col].letter = ''
 			assignHint(tiles, 'tbd') // overkill = clears the invalid guess case
