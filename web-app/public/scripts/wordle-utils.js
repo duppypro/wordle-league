@@ -19,7 +19,7 @@ const assignHint = (tiles, hint) => {
 	tiles.forEach(tile => tile.hint = hint)
 }
 
-const assignHintsFromSolution = (tiles, solution) => {
+const assignHintsFromSolution = (tiles, solution, kbdHints) => {
 // primary purpose is to assign hint values
 // also returns false if the guess was invalid 
 
@@ -37,6 +37,7 @@ const assignHintsFromSolution = (tiles, solution) => {
 	tiles.forEach((tile, i) => {
 		if (tile.letter == testSolution[i]) { // if in the same position
 			tile.hint = 'correct'
+			kbdHints[tile.letter] = 'correct'
 			testSolution[i] = '.' // mark/remove this to make double letters work
 		}
 	})
@@ -47,8 +48,10 @@ const assignHintsFromSolution = (tiles, solution) => {
 			const pos = testSolution.indexOf(tile.letter)
 			if (pos == -1) { // if not found
 				tile.hint = 'absent'
+				kbdHints[tile.letter] = 'absent'
 			} else {
 				tile.hint = 'present'
+				kbdHints[tile.letter] = 'present'
 				testSolution[pos] = '.' // mark/remove this to make double letters work
 			}
 		}
@@ -77,7 +80,7 @@ const updateChallengeFromKey = (challenge, key_) => {
 	if (ID < numPuzzles) { // if challenge isn't finished with all puzzles
 		if (col == tiles.length
 		 && (key == 'Enter' || key == 'ENTER')) { // only process Enter key at end of row
-			const valid = assignHintsFromSolution(tiles, puzzle.solution)
+			const valid = assignHintsFromSolution(tiles, puzzle.solution, challenge.keyboardHints)
 			const guessAsString = tiles.map(t => t.letter).join('')
 			if (guessAsString == puzzle.solution) {
 				puzzle.finished = true // does anything read this?
@@ -90,13 +93,14 @@ const updateChallengeFromKey = (challenge, key_) => {
 						letterCol: sharedStartWordMode ? 5 : 0,
 					}
 				}
-				// win animation here, for now it just fills the remaining rows
+				// win animation here, for now it just fills the remaining rows and nothing happens if no rows left
 				let winRow = row
 				while (winRow < puzzle.maxGuesses) {
 					assignHint(puzzle.allGuesses[winRow], 'correct')
 					winRow++
 				}
-				// TODO: Also clear keyboard hints. Do it in the data or just the DOM hint styles?
+				// reset keyboard hints
+				allValidLetters.split('').forEach(letter => challenge.keyboardHints[letter] = 'tbd' )
 			} else if (valid) { // normal case
 				if (row < puzzle.maxGuesses - 1) {
 					row++

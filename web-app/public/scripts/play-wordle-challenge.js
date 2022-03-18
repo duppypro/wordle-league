@@ -65,6 +65,8 @@ challenge.puzzles = challenge.puzzles.map((x, i) => {
 	
 	return puzzle
 })
+challenge.keyboardHints = {}
+allValidLetters.split('').forEach(letter => challenge.keyboardHints[letter] = 'tbd' )
 
 // init DOM for puzzles
 updateDOMFromChallenge(selChallenge, challenge)
