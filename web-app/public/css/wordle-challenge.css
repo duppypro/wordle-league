@@ -16,9 +16,9 @@
 		--blue: #85c0f9;
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-size: 16px;
-		--header-height: 40px;
+		--header-height: 24px;
 		--score-height: 64px;
-		--keyboard-height: 159px;
+		--keyboard-height: 152px;
 		--game-max-width: 360px;
 
 		/* icons */
@@ -118,7 +118,7 @@
 		width: 100%;
 		max-width: var(--game-max-width);
 		margin: 0 auto;
-		height: calc(100% - var(--header-height));
+		height: calc(100vh - var(--header-height));
 		display: flex;
 		flex-direction: column;
 	}
@@ -219,7 +219,7 @@
 		padding: 0px 0px 10px 0px;
 		box-sizing: border-box;
 		color: var(--color-tone-1);
-		width: 300px;
+		width: 276px;
 		/* height: 120px; override this programmatically based on numGuesses in game if needed */
 	}
 
@@ -327,7 +327,7 @@
 		font-weight: bold;
 		border: 0;
 		padding: 0;
-		margin: 0 1px 0 0;
+		margin: 0 2px 0 0;
 		height: 48px;
 		border-radius: 4px;
 		cursor: pointer;

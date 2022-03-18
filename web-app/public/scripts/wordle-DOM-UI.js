@@ -60,7 +60,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// always recreate this because both DOM and puzzles might have changed
 	selChallenge
 		.select("#challenge-puzzles")
-		.style('height', `${17 + (5+52+2+2)*(challenge.puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
+		.style('height', `${17 + (5+48+2+2)*(challenge.puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
 		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
 		.data(puzzles, puzzle => puzzle.ID)
@@ -71,7 +71,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				selContainer.append('div').attr('class', 'puzzle')
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
-					.style('left', puzzle => `${360 + 360*(puzzle.ID - currentPuzzleID)}px`)
+					.style('left', puzzle => `${42 + 360*(1 + puzzle.ID - currentPuzzleID)}px`)
 				return selContainer
 			},
 			old => old,
@@ -80,7 +80,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.transition().duration(2*beat).style('left', puzzle => `${30 + 360*(puzzle.ID - currentPuzzleID)}px`).delay(beat/2)
+		.transition().duration(2*beat).style('left', puzzle => `${42 + 360*(puzzle.ID - currentPuzzleID)}px`).delay(beat/2)
 		// TODO: the 30 and 360 are hard-coded, should be computed from game width
 	selChallenge
 		.selectAll('div.puzzle-score').html(puzzle => 
