@@ -100,7 +100,8 @@ const updateChallengeFromKey = (challenge, key_) => {
 					winRow++
 				}
 				// reset keyboard hints
-				allValidLetters.split('').forEach(letter => challenge.keyboardHints[letter] = 'tbd' )
+				challenge.keyboardHints = {}
+				// allValidLetters.split('').forEach(letter => challenge.keyboardHints[letter] = 'tbd' )
 			} else if (valid) { // normal case
 				if (row < puzzle.maxGuesses - 1) {
 					row++
@@ -116,6 +117,8 @@ const updateChallengeFromKey = (challenge, key_) => {
 							letterCol: sharedStartWordMode ? 5 : 0,
 						}
 					}
+					// reset keyboard hints
+					challenge.keyboardHints = {}
 				}
 			} // ignore 'Enter' if guess is not valid, wait for 'Backspace'
 		} else if (col > 0 

@@ -20,7 +20,8 @@ let challengeID = 'session-only' // only one challenge per session now
 let challenge = { // TODO: refactor this to use new WordleChallenge(options)
 	currentPuzzleID: 0,
 	numPuzzles: 5, // TODO: refactor to make this configurable
-	sharedStartWordMode: false,
+	sharedStartWordMode: false, // this game mode does not make sense until I can enforce hard mode and harder mode!boss
+	
 }
 challenge.puzzles = new Array(challenge.numPuzzles).fill(true)
 challenge.solutionByID = removeRandomSubset(possibleSolutionWords, challenge.numPuzzles),
