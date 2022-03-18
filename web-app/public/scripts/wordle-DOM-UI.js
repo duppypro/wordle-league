@@ -8,7 +8,7 @@ const createKeyboardDOM = (selKeyboard) => {
 	let keys = Array.from("qwertyuiop")
 	let selRow = sel.append('div').attr('class','row')
 	keys.forEach((key) => {
-		selRow.append('button').text(key)
+		selRow.append('button').attr('hint','tbd').text(key)
 	})
 
 	keys = Array.from("asdfghjkl")
@@ -16,7 +16,7 @@ const createKeyboardDOM = (selKeyboard) => {
 	selRow.append('div')
 		.attr('class','half')
 	keys.forEach((key) => {
-		selRow.append('button').text(key)
+		selRow.append('button').attr('hint','tbd').text(key)
 	})
 	selRow.append('div')
 		.attr('class','half')
@@ -26,15 +26,17 @@ const createKeyboardDOM = (selKeyboard) => {
 	selRow.append('button')
 		.attr('class','one-and-a-half').text('Enter')
 	keys.forEach((key) => {
-		selRow.append('button').text(key)
+		selRow.append('button').attr('hint','tbd').text(key)
 	})
 	selRow.append('button')
 		.attr('class','one-and-a-half').text('←')
 		.style('font-size','18px')
 }
 
-const drawKeyboardHints = (selKeyboard, guessedLetters, solution) => {
-	console.log(guessedLetters)
+const drawKeyboardHintsFromChallenge = (selChallenge, challenge) => {
+	selChallenge.select('#challenge-keyboard').selectAll('button').each(function () {
+		d3.select(this).attr('hint',challenge.keyboardHints[this.innerText.toLowerCase()])
+	})
 }
 
 const updateDOMFromChallenge = (selChallenge, challenge) => {
@@ -45,6 +47,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 	if (selChallenge.select('#challenge-keyboard').select('*').empty()) {
 		createKeyboardDOM(selChallenge.select('#challenge-keyboard'))
 	}
+	drawKeyboardHintsFromChallenge(selChallenge, challenge)
 
 	// Update progress and final score
 	selChallenge.select('#challenge-score')
