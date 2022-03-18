@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Wordle League</title>
+		<title>Wordle Challenge</title>
 
 		<!-- update the version number as needed -->
 		<script defer src="/__/firebase/9.6.8/firebase-app-compat.js"></script>
@@ -16,138 +16,38 @@
 		-->
 		<script defer src="/__/firebase/init.js?useEmulator=false"></script>
 
-		<style media="screen">
-			.toaster {
-				position: absolute;
-				top: 10%;
-				left: 50%;
-				transform: translate(-50%, 0);
-				pointer-events: none;
-				width: fit-content;
-			}
-			#game-toaster {
-				z-index: 1000;
-			}
-			#system-toaster {
-				z-index: 4000;
-			}
-
-			#wordle-game {
-				width: 100%;
-				max-width: var(--game-max-width);
-				margin: 0 auto;
-				height: calc(100% - var(--header-height));
-				display: flex;
-				flex-direction: column;
-			}
-			header {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				justify-content: space-between;
-				flex-wrap: nowrap;
-				padding: 0 16px;
-				height: var(--header-height);
-				color: var(--color-tone-1);
-				border-bottom: 1px solid var(--color-tone-4);
-			}
-			header .title {
-				font-family: 'nyt-karnakcondensed';
-				font-weight: 700;
-				font-size: 37px;
-				line-height: 100%;
-				letter-spacing: 0.01em;
-				text-align: center;
-				left: 0;
-				right: 0;
-				pointer-events: none;
-			}
-			.menu-left {
-				display: flex;
-				margin: 0;
-				padding: 0;
-				align-items: center;
-				width: 70px;
-				justify-content: flex-start;
-			}
-			.menu-right {
-				display: flex;
-				width: 70px;
-				justify-content: flex-end;
-			}
-			#nav-button {
-				padding-top: 2px;
-			}
-
-			@media (min-width: 415px) {
-				header {
-					padding: 0px 16px;
-				}
-			}
-
-			@media (max-width: 360px) {
-				header .title {
-					font-size: 22px;
-					letter-spacing: 0.1rem;
-				}
-			}
-
-			#board-container {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				flex-grow: 1;
-				overflow: hidden;
-			}
-			#board {
-				display: grid;
-				grid-template-rows: repeat(6, 1fr);
-				grid-gap: 5px;
-				padding:10px;
-				box-sizing: border-box;
-			}
-			button.icon {
-				background: none;
-				border: none;
-				cursor: pointer;
-				padding: 0 4px;
-			}
-
-			#debug-tools {
-				position: absolute;
-				bottom: 0;
-			}
-		</style>
+		<link rel="stylesheet" href="./css/wordle-challenge.css">
 	</head>
-	<body class="nightmode" style="background-color:black;color: whitesmoke">
-		<div class="title">
-			<h2>Welcome</h2>
-			<h1>This is Wordle League</h1>
-			<p class="load-message">hosted by firebase</p>
-		</div>
-		<p id="load" class="load-message">Firebase SDK Loading&hellip;</p>
-
+	<body class="nightmode">
+	<!-- <body class="nightmode" style="background-color:black; color: whitesmoke;"> -->
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
-				const loadEl = document.querySelector('#load');
 				// // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 				// // The Firebase SDK is initialized and available here!
 				try {
-					let app = firebase.app();
-					let features = [
-						'auth', 
-						'database', 
-					].filter(feature => typeof app[feature] === 'function');
-					loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-					d3.selectAll('.load-message').transition().delay(339).duration(339).style('opacity',0).remove()
+					let fbApp = firebase.app();
 				} catch (e) {
 					console.error(e);
-					loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
 				}
-			});
+			})
 		</script>
-		<!-- Wordle placeholders -->
-		<div id="wordle-league" style="text-align: center">Loading League</div>
+		<!-- Wordle Challenge goes here -->
+		<div id="game-app">
+			<header>
+				<div class="menu-left">
+				</div>
+				<div class="title">
+					Wordle Challenge
+				</div>
+				<div class="menu-right">
+				</div>
+			</header>
+			<div id="challenge">
+				<div id="challenge-score"></div>
+				<div id="challenge-puzzles"></div>
+				<div id="challenge-keyboard"></div>
+			</div>
+		</div>
 
 		<!-- Load third party libraries (firebase loaded inline above) -->
 		<script src="https://d3js.org/d3.v7.min.js"></script>

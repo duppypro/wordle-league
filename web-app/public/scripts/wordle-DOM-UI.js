@@ -1,85 +1,131 @@
 'use strict'
 ///////////////////////// WORDLE UI FUNCTIONS //////////////////
+const beat = 666//333 // for animations. units are ms
+
+const createKeyboardDOM = (selKeyboard) => {
+	const sel = selKeyboard.append('div').attr('id','keyboard')
+
+	let keys = Array.from("qwertyuiop")
+	let selRow = sel.append('div').attr('class','row')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+
+	keys = Array.from("asdfghjkl")
+	selRow = sel.append('div').attr('class','row')
+	selRow.append('div')
+		.attr('class','half')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+	selRow.append('div')
+		.attr('class','half')
+
+	keys = Array.from("zxvcbnm")
+	selRow = sel.append('div').attr('class','row')
+	selRow.append('button')
+		.attr('class','one-and-a-half').text('Enter')
+	keys.forEach((key) => {
+		selRow.append('button').text(key)
+	})
+	selRow.append('button')
+		.attr('class','one-and-a-half').text('←')
+		.style('font-size','18px')
+}
+
+const drawKeyboardHints = (selKeyboard, guessedLetters, solution) => {
+	console.log(guessedLetters)
+}
+
 const updateDOMFromChallenge = (selChallenge, challenge) => {
 	// convenience renaming
 	let {puzzles, currentPuzzleID, numPuzzles, sharedStartWordMode} = challenge // TODO: refactor globals like sharedStartWordMode and others?
 
+	// create DOM elements for keyboard and attach touch listeners if it doesn't exist yet
+	if (selChallenge.select('#challenge-keyboard').select('*').empty()) {
+		createKeyboardDOM(selChallenge.select('#challenge-keyboard'))
+	}
+
 	// Update progress and final score
-	selChallenge.select('.wordle-challenge-score')
-		.text(
-			`|| This Challenge Progress: ${currentPuzzleID}/${numPuzzles} |||||| `
-			+ `Final Score (average guesses): ${puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles} ||`	
-			)
+	selChallenge.select('#challenge-score')
+		.html(
+			`Progress: ${currentPuzzleID} of ${numPuzzles}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			+ `Final Score: ${
+				currentPuzzleID == numPuzzles
+					? puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles
+					: '-'
+			}`	
+		)
 
 	// always recreate this because both DOM and puzzles might have changed
-	let selPuzzles = selChallenge.selectAll('div.wordle-puzzle')  // NYT Wordle calls this 'div#game div#board-container div#board'
-		.data(puzzles) // make a puzzle element for each puzzle in this challenge
+	selChallenge
+		.select("#challenge-puzzles")
+		.style('height', `${17 + (5+48+2+2)*(challenge.puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
+		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
+		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
+		.data(puzzles, puzzle => puzzle.ID)
 		.join(
-			enter => enter
-				.append('div').attr('class', 'wordle-puzzle')
-				.style('text-align', 'center').style('width','350px')
-				.style('height', sharedStartWordMode ? '670px' : '600px'), // create puzzle boards that are new to the array allPuzzles
+			enter => {
+				const selContainer = enter.append('div').attr('class', 'puzzle-container')
+				selContainer.append('div').attr('class', 'puzzle-score')
+				selContainer.append('div').attr('class', 'puzzle')
+					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
+				selContainer
+					.style('left', puzzle => `${42 + 360*(1 + puzzle.ID - currentPuzzleID)}px`)
+				return selContainer
+			},
 			old => old,
-			exit => exit
-				.transition().duration(340).style('opacity',0).remove()
+			exit => exit // NOTE: these never exit yet - untested
+				.transition().duration(2*beat).style('left','translate(-300%)').delay(beat/2)
+				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.text(puzzle => 
-			`Puzzle #${puzzle.ID+1} ||`
-			+ ` Guesses: ${puzzle.cursorPos.guessRow} /`
-			+ ` Final Score: ${puzzle.finished ? puzzle.finalGuessCount : '-'} of ${puzzle.maxGuesses}`
+		.transition().duration(2*beat).style('left', puzzle => `${42 + 360*(puzzle.ID - currentPuzzleID)}px`).delay(beat/2)
+		// TODO: the 30 and 360 are hard-coded, should be computed from game width
+	selChallenge
+		.selectAll('div.puzzle-score').html(puzzle => 
+			`Puzzle #${puzzle.ID+1}`
+			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			+ `Score: ${puzzle.finished ? puzzle.finalGuessCount : puzzle.cursorPos.guessRow}/${puzzle.maxGuesses}`
 		)
 		// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
 		//       except update only includes elements before the enter
 		//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
 	
 	// for each puzzle add/update 6 or 7 guess rows
-	selPuzzles.each((puzzle, i, nodes) => { //this is called for each div.wordle-puzzle DOM element
+	selChallenge.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
+		//this is called for each div.puzzle DOM element
 		//puzzleState (puzzle)
-		d3.select(nodes[i]).selectAll('div.guessRow') // NYT Wordle calls this 'game-row.row'
+		d3.select(this).selectAll('div.game-row')
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
-					.append('div').attr('class','guessRow')
-					.style('display', 'grid')
-					.style('grid-template-columns', 'repeat(5, 1fr)')
-					.style('grid-gap', '5px'),
+					.append('div').attr('class','game-row')
+					.append('div').attr('class','row'),
 				old => old, // this
-				exit => exit
-					.transition().duration(340).style('opacity',0).remove()
+				exit => exit,
 				)
 			// now for all entered and old guess rows create letters
-			.each((guessRow, i, nodes) => {
-				d3.select(nodes[i]).selectAll('div.letterBox div.guessLetter') // NYT Wordle calls this 'game-tile div.tile'
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.game-tile div.tile')
 				.data(guessRow)
 				.join(
 					enter => enter
-						.append('div').attr('class','letterBox')
-							.style('display', 'inline-block')
-							.style('background-color', 'black')
-							.style('width', '62px')
-							.style('height', '62px')
-						.append('div').attr('class','guessLetter')
-							.style('border', '2px solid #3a3a3c')
-							.style('width', '100%')
-							.style('height', '100%')
-							.style('display', 'inline-flex')
-							.style('justify-content', 'center')
-							.style('align-items', 'center')
-							.style('font-size', '2rem')
-							.style('line-height', '2rem')
-							.style('font-weight', 'bold')
-							.style('vertical-align', 'middle')
-							.style('box-sizing', 'border-box')
-							.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
-							.style('text-transform','uppercase'),
+						.append('div').attr('class','game-tile')
+						.append('div').attr('class','tile'),
 					old => old,
-					exit => exit
-					.transition().duration(340).style('opacity',0).remove()
+					exit => exit,
 				)
 				// update all here because .join() returns merge of enter() and old()
 				.text(tile => tile.letter)
-				.style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
+				.attr('hint', tile => tile.hint)
+				// .style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
 			})
 	}) // end selPuzzles.each()
+
+	// NOTE: overkill - update all hints here so they show even on exiting DOM elements.  Optimize later
+	selChallenge.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
+		.text(tile => tile.letter)
+		.attr('hint', tile => tile.hint)
+
 }

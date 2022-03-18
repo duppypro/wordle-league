@@ -9,8 +9,6 @@
 // init state for league
 let userID = 'this-session' // no user login yet
 // init DOM for league
-const selLeague = d3.select("#wordle-league")
-
 //////////////////////// CHALLENGE ///////////////////////////////////////
 // init challenge state. A challenge is a set of 7 or 30 games with pre-selected solution order to compete among diff users
 // TODO: offer choice of word set. Defaulting to original
@@ -21,8 +19,8 @@ let challengeID = 'session-only' // only one challenge per session now
 // challenge options
 let challenge = { // TODO: refactor this to use new WordleChallenge(options)
 	currentPuzzleID: 0,
-	numPuzzles: 7, // TODO: refactor to make this configurable
-	sharedStartWordMode: true, // only handle this case for now
+	numPuzzles: 5, // TODO: refactor to make this configurable
+	sharedStartWordMode: false,
 }
 challenge.puzzles = new Array(challenge.numPuzzles).fill(true)
 challenge.solutionByID = removeRandomSubset(possibleSolutionWords, challenge.numPuzzles),
@@ -30,22 +28,7 @@ challenge.startWordByID = challenge.sharedStartWordMode ? removeRandomSubset(pos
 // challenge state init complete
 
 // init DOM for Challenge
-const selLeagueTitle = selLeague.text('') // erase loading message
-	.style('font-family', 'Clear Sans, Helvetica Neue, Arial, sans-serif')
-	.append('div').style('margin-bottom','2em') 
-selLeagueTitle.append('div').text("This 7 puzzle Challenge is unique to this browser session.")
-selLeagueTitle.append('div').text("Do not close tab until solved.")
-
-const selChallenge = selLeague
-.append('div').attr('class','wordle-challenge')
-.style('display', 'flex').style('justify-content', 'center')
-.style('align-items', 'center').style('flex-direction', 'column')
-//.style('overflow', 'hidden') // TODO: lookup why this was used in NYT Wordle
-
-selChallenge.append('div').text('=======================================================')
-selChallenge.append('div').attr('class','wordle-challenge-score')
-selChallenge.append('div').text('=======================================================')
-	.style('margin-bottom','2em')
+const selChallenge = d3.select('#challenge') // TODO: this references DOM?  move this to wordle-DOM-UI module? or is this the right place because this is where both update DOM and update state functions are called?
 
 //////////////////////////// PUZZLE ///////////////////////////////////////
 // init state for all puzzles
@@ -57,7 +40,7 @@ challenge.puzzles = challenge.puzzles.map((x, i) => {
 		startWord: challenge.startWordByID[i],
 		allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
 			(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
-				(x, i) => ({letter: '', hint: 'tbd'})
+				(x, i) => ({letter: '', hint: 'empty'})
 			)
 		),
 		maxGuesses: undefined,
@@ -91,13 +74,14 @@ const updateChallengeOnKeydown = (e) => {
 	updateChallengeFromKey(challenge, e.key)
 	updateDOMFromChallenge(selChallenge, challenge)
 }
+
 const updateChallengeOnMousedown = (e) => {
-	console.log('mousedown event', e)
-	// TODO: from mouse down on element in keyboard element figure out a key
-	const key = ' '
-	updateChallengeFromKey(challenge, key) // updates state only
-	updateDOMFromChallenge(selChallenge, challenge) // updates UI only
+	const key = e && e.toElement && e.toElement.innerText
+	if (key) {
+		updateChallengeFromKey(challenge, key) // updates state only
+		updateDOMFromChallenge(selChallenge, challenge) // updates UI only
+	}
 }
 d3.select('body').on('keydown', updateChallengeOnKeydown)
-//d3.select('body').on('mousedown', updateChallengeOnMousedown)
+d3.select('#keyboard').on('mousedown', updateChallengeOnMousedown)
 // event listener drives the game from here on

@@ -1,0 +1,392 @@
+	/* Fonts */
+	/**/
+	/* Global Styles & Colors */
+	:root {
+		--green: #6aaa64;
+		--darkendGreen: #538d4e;
+		--yellow: #c9b458;
+		--darkendYellow: #b59f3b;
+		--lightGray: #d8d8d8;
+		--gray: #86888a;
+		--darkGray: #939598;
+		--white: #fff;
+		--black: #212121;
+		/* Colorblind colors */
+		--orange: #f5793a;
+		--blue: #85c0f9;
+		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+		font-size: 16px;
+		--header-height: 24px;
+		--score-height: 64px;
+		--keyboard-height: 152px;
+		--game-max-width: 360px;
+
+		/* icons */
+		/**/
+	}
+
+	/* Light theme colors */
+	:root {
+		--color-tone-1: #000000;
+		--color-tone-2: #787c7e;
+		--color-tone-3: #878a8c;
+		--color-tone-4: #d3d6da;
+		--color-tone-5: #edeff1;
+		--color-tone-6: #f6f7f8;
+		--color-tone-7: #ffffff;
+		--color-nav-hover: #f4f4f4;
+		--opacity-50: rgba(255, 255, 255, 0.5);
+	}
+
+	/* Dark Theme Colors */
+	.nightmode {
+		--color-tone-1: #ffffff;
+		--color-tone-2: #818384;
+		--color-tone-3: #565758;
+		--color-tone-4: #3a3a3c;
+		--color-tone-5: #272729;
+		--color-tone-6: #1a1a1b;
+		--color-tone-7: #121213;
+		--color-nav-hover: #2f2f31;
+		--opacity-50: rgba(0, 0, 0, 0.5);
+
+		/* dark mode icons */
+		/**/
+	}
+
+	/* Constant colors and colors derived from theme */
+	:root,
+	.nightmode {
+		--color-background: var(--color-tone-7);
+	}
+
+	:root {
+		--color-present: var(--yellow);
+		--color-correct: var(--green);
+		--color-invalid: #941919;
+		--color-absent: var(--color-tone-2);
+		--tile-text-color: var(--color-tone-7);
+		--key-text-color: var(--color-tone-1);
+		--key-evaluated-text-color: var(--color-tone-7);
+		--key-bg: var(--color-tone-4);
+		--key-bg-present: var(--color-present);
+		--key-bg-correct: var(--color-correct);
+		--key-bg-absent: var(--color-absent);
+		--modal-content-bg: var(--color-tone-7);
+	}
+
+	.nightmode {
+		--color-present: var(--darkendYellow);
+		--color-correct: var(--darkendGreen);
+		--color-invalid: #3a0a0a;
+		--color-absent: var(--color-tone-4);
+		--tile-text-color: var(--color-tone-1);
+		--key-text-color: var(--color-tone-1);
+		--key-evaluated-text-color: var(--color-tone-1);
+		--key-bg: var(--color-tone-2);
+		--key-bg-present: var(--color-present);
+		--key-bg-correct: var(--color-correct);
+		--key-bg-absent: var(--color-absent);
+		--modal-content-bg: var(--color-tone-7);
+	}
+
+	.colorblind {
+		--color-correct: var(--orange);
+		--color-present: var(--blue);
+		--tile-text-color: var(--white);
+		--key-bg-present: var(--color-present);
+		--key-bg-correct: var(--color-correct);
+		--key-bg-absent: var(--color-absent);
+	}
+
+	html {
+		height: 100%;
+	}
+
+	body {
+		height: 100%;
+		background-color: var(--color-background);
+		margin: 0;
+		padding: 0;
+		/* Prevent scrollbar appearing on page transition */
+		overflow-y: hidden;
+	}
+
+	/* below this is style from game-app shadow root */
+
+	#challenge {
+		width: 100%;
+		max-width: var(--game-max-width);
+		margin: 0 auto;
+		height: calc(100vh - var(--header-height));
+		display: flex;
+		flex-direction: column;
+	}
+
+	header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: nowrap;
+		padding: 0 16px;
+		height: var(--header-height);
+		color: var(--color-tone-1);
+		border-bottom: 2px solid var(--color-tone-4);
+	}
+
+	header .title {
+		font-family: 'Lucida,Helvetica,sans-serif';
+		font-weight: bolder;
+		font-size: 24px;
+		line-height: 100%;
+		letter-spacing: 0.01em;
+		text-align: center;
+		pointer-events: none;
+	}
+
+	#challenge-puzzles {
+		position: relative;
+		width: 360px;
+		height: calc(100% - var(--score-height) - var(--keyboard-height));
+		padding: 0px 0px 16px 0px;
+		overflow: hidden;
+	}
+	#challenge-score {
+		color: var(--color-tone-1);
+		border-bottom: 2px solid var(--color-tone-4);
+		font-family: inherit;
+		font-weight: normal;
+		font-size: 16px;
+		line-height: var(--score-height);
+		letter-spacing: 0.01em;
+		text-align: center;
+		right: 0;
+		pointer-events: none;
+	}
+
+	.menu-left {
+		display: flex;
+		margin: 0;
+		padding: 0;
+		align-items: center;
+		width: 70px;
+		justify-content: flex-start;
+	}
+
+	.menu-right {
+		display: flex;
+		width: 70px;
+		justify-content: flex-end;
+	}
+
+	@media (min-width: 415px) {
+		header {
+			padding: 0px 16px;
+		}
+	}
+
+	@media (max-width: 360px) {
+		header .title {
+			font-size: 22px;
+			letter-spacing: 0.1rem;
+		}
+	}
+
+	.puzzle-container {
+		color: var(--tile-text-color);
+		position: absolute;
+		/* left: 50%; */
+		/* top: 0px; */
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		flex-grow: 1;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.puzzle-score {
+		line-height: 2em;
+		text-align: center;
+	}
+
+	.puzzle {
+		display: grid;
+		grid-template-rows: repeat(6, 1fr);
+		grid-gap: 5px;
+		padding: 0px 0px 10px 0px;
+		box-sizing: border-box;
+		color: var(--color-tone-1);
+		width: 276px;
+		/* height: 120px; override this programmatically based on numGuesses in game if needed */
+	}
+
+	button.icon {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0 4px;
+	}
+
+	/* below for .game-row */
+
+	.game-row {
+		display: block;
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		grid-gap: 5px;
+	}
+
+	/* below from game-tile shadow root */
+
+	.game-tile {
+		display: inline-block;
+	}
+
+	.tile {
+		width: 100%;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 2rem;
+		line-height: 1.5rem;
+		font-weight: bold;
+		vertical-align: middle;
+		box-sizing: border-box;
+		color: var(--tile-text-color);
+		text-transform: uppercase;
+		user-select: none;
+	}
+
+	.tile::before {
+		content: '';
+		display: inline-block;
+		padding-bottom: 100%;
+	}
+
+	/* Allow tiles to be smaller on small screens */
+	@media (max-height: 600px) {
+		.tile {
+			font-size: 1em;
+			line-height: 1em;
+		}
+	}
+
+	.tile[hint='empty'] {
+		border: 2px solid var(--color-tone-4);
+	}
+
+	.tile[hint='tbd'] {
+		background-color: var(--color-tone-7);
+		border: 2px solid var(--color-tone-3);
+		color: var(--color-tone-1);
+	}
+
+	.tile[hint='correct'] {
+		background-color: var(--color-correct);
+	}
+
+	.tile[hint='present'] {
+		background-color: var(--color-present);
+	}
+
+	.tile[hint='absent'] {
+		background-color: var(--color-absent);
+	}
+
+	.tile[hint='invalid'] {
+		background-color: var(--color-invalid);
+	}
+
+	/* Below is game-keyboard shadow style */
+
+	#challenge-keyboard {
+		height: var(--keyboard-height);
+	}
+
+	#keyboard {
+		margin: 0 0px;
+		user-select: none;
+	}
+
+	#challenge-keyboard .row {
+		display: flex;
+		width: 100%;
+		margin: 0 auto 4px;
+		/* https://stackoverflow.com/questions/46167604/ios-html-disable-double-tap-to-zoom */
+		touch-action: manipulation;
+	}
+
+	#challenge-keyboard button {
+		font-family: inherit;
+		font-weight: bold;
+		border: 0;
+		padding: 0;
+		margin: 0 2px 0 0;
+		height: 48px;
+		border-radius: 4px;
+		cursor: pointer;
+		user-select: none;
+		background-color: var(--key-bg);
+		color: var(--key-text-color);
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-transform: uppercase;
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
+	}
+
+	#challenge-keyboard button:focus {
+		outline: none;
+	}
+
+	#challenge-keyboard button.fade {
+		transition: background-color 0.1s ease, color 0.1s ease;
+	}
+
+	#challenge-keyboard button:last-of-type {
+		margin: 0;
+	}
+
+	#challenge-keyboard .half {
+		flex: 0.5;
+	}
+
+	#challenge-keyboard .one {
+		flex: 1;
+	}
+
+	#challenge-keyboard .one-and-a-half {
+		flex: 1.5;
+		font-size: 12px;
+	}
+
+	#challenge-keyboard .two {
+		flex: 2;
+	}
+
+	#challenge-keyboard button[hint='tbd'] {
+		background-color: var(--key-bg);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='correct'] {
+		background-color: var(--key-bg-correct);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='present'] {
+		background-color: var(--key-bg-present);
+		color: var(--key-evaluated-text-color);
+	}
+
+	#challenge-keyboard button[hint='absent'] {
+		background-color: var(--key-bg-absent);
+		color: var(--key-evaluated-text-color);
+	}
