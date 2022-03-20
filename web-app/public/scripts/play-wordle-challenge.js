@@ -40,7 +40,7 @@ const selChallenge = d3.select('#challenge')
 
 // init DOM for puzzles
 d3.select('#game-app header div.title')
-	.html(`Wordle Challenge&nbsp;&nbsp;&nbsp;<span class='uid'>${challenge.ID}</span>`)
+	.html(`<span>Wordle Challenge&nbsp;&nbsp;&nbsp;</span><span class='uid'>${challenge.ID}</span>`)
 updateD3SelectionFromChallenge(selChallenge, challenge)
 // must call this once to init presentation, then this is also called later from anything that changes puzzle state such as event handlers
 

@@ -133,22 +133,38 @@
 		height: var(--header-height);
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
+		/* make selectable */
+		-moz-user-select: all;
+		-webkit-user-select: all;
+		-ms-user-select: all;
+		user-select: all;
 	}
-
+	
 	header .title {
 		font-family: 'Lucida,Helvetica,sans-serif';
 		font-weight: bolder;
-		font-size: 24px;
+		font-size: 26px;
 		line-height: 100%;
 		letter-spacing: 0.01em;
 		text-align: center;
 		pointer-events: none;
+		/* make selectable */
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
 	}
 
 	header .uid {
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-weight: 200;
 		font-size: 18px;
+		text-align: center;
+		/* make selectable */
+		-moz-user-select: text;
+		-webkit-user-select: text;
+		-ms-user-select: text;
+		user-select: text;
 	}
 
 	#challenge-puzzles {
@@ -176,13 +192,13 @@
 		margin: 0;
 		padding: 0;
 		align-items: center;
-		width: 70px;
+		width: 6px;
 		justify-content: flex-start;
 	}
 
 	.menu-right {
 		display: flex;
-		width: 70px;
+		width: 6px;
 		justify-content: flex-end;
 	}
 
