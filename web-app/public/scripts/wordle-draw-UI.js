@@ -1,16 +1,20 @@
 'use strict'
 ///////////////////////// WORDLE UI FUNCTIONS //////////////////
-const beat = 666//333 // for animations. units are ms
+const beat = 666 //333 // for animations speed, units are in msec
 
-const createKeyboardDOM = (selKeyboard) => {
+const createKeyboardD3Selection = (selKeyboard) => {
 	const sel = selKeyboard.append('div').attr('id','keyboard')
+	let keys
+	let selRow
 
-	let keys = Array.from("qwertyuiop")
-	let selRow = sel.append('div').attr('class','row')
+	// top row QWERTYUIOP
+	keys = Array.from("qwertyuiop")
+	selRow = sel.append('div').attr('class','row')
 	keys.forEach((key) => {
 		selRow.append('button').attr('hint','tbd').text(key)
 	})
 
+	// middle row ASDFGHJKL
 	keys = Array.from("asdfghjkl")
 	selRow = sel.append('div').attr('class','row')
 	selRow.append('div')
@@ -21,6 +25,7 @@ const createKeyboardDOM = (selKeyboard) => {
 	selRow.append('div')
 		.attr('class','half')
 
+	// bottom row Enter-ZXCVBNM-Backspace
 	keys = Array.from("zxvcbnm")
 	selRow = sel.append('div').attr('class','row')
 	selRow.append('button')
@@ -34,39 +39,42 @@ const createKeyboardDOM = (selKeyboard) => {
 }
 
 const drawKeyboardHintsFromChallenge = (selChallenge, challenge) => {
-	selChallenge.select('#challenge-keyboard').selectAll('button').each(function () {
-		d3.select(this).attr('hint',challenge.keyboardHints[this.innerText.toLowerCase()])
+	selChallenge.selectAll('#keyboard button').each(function () {
+		d3.select(this).attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
 	})
 }
 
-const updateDOMFromChallenge = (selChallenge, challenge) => {
-	// convenience renaming
-	let {puzzles, currentPuzzleID, numPuzzles, sharedStartWordMode} = challenge // TODO: refactor globals like sharedStartWordMode and others?
+const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
+	let { // convenience renaming
+		puzzles,
+		nowPuzzleID,
+		numPuzzles,
+	} = challenge
 
 	// create DOM elements for keyboard and attach touch listeners if it doesn't exist yet
 	if (selChallenge.select('#challenge-keyboard').select('*').empty()) {
-		createKeyboardDOM(selChallenge.select('#challenge-keyboard'))
+		createKeyboardD3Selection(selChallenge.select('#challenge-keyboard'))
 	}
 	drawKeyboardHintsFromChallenge(selChallenge, challenge)
 
 	// Update progress and final score
 	selChallenge.select('#challenge-score')
 		.html(
-			`Progress: ${currentPuzzleID} of ${numPuzzles}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
+			`Progress: ${nowPuzzleID} of ${numPuzzles}`
+			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
 			+ `Final Score: ${
-				currentPuzzleID == numPuzzles
-					? puzzles.reduce((sum, p)=>(sum.finalGuessCount||sum) + p.finalGuessCount) / numPuzzles
-					: '-'
+				nowPuzzleID == numPuzzles // are all puzzles scored yet?
+					? puzzles.reduce((sum, p) => sum + p.finalGuessCount, 0) / numPuzzles // average of all guess counts
+					: '-' // or nothing if still in progress
 			}`	
 		)
 
 	// always recreate this because both DOM and puzzles might have changed
 	selChallenge
 		.select("#challenge-puzzles")
-		.style('height', `${17 + (5+48+2+2)*(challenge.puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
+		.style('height', `${17 + (5+48+2+2)*(puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
 		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
-		// .data(puzzles) // make a puzzle element for each puzzle in this challenge
-		.data(puzzles, puzzle => puzzle.ID)
+		.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
 		.join(
 			enter => {
 				const selContainer = enter.append('div').attr('class', 'puzzle-container')
@@ -74,20 +82,20 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 				selContainer.append('div').attr('class', 'puzzle')
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
-					.style('left', puzzle => `${42 + 360*(1 + puzzle.ID - currentPuzzleID)}px`)
+					.style('left', puzzle => `${42 + 360*(1 + puzzle.ID - nowPuzzleID)}px`)
 				return selContainer
 			},
 			old => old,
 			exit => exit // NOTE: these never exit yet - untested
-				.transition().duration(2*beat).style('left','translate(-300%)').delay(beat/2)
+				.transition().duration(2*beat).style('left','-360px').delay(beat/2)
 				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.transition().duration(2*beat).style('left', puzzle => `${42 + 360*(puzzle.ID - currentPuzzleID)}px`).delay(beat/2)
+		.transition().duration(2*beat).style('left', puzzle => `${42 + 360*(puzzle.ID - nowPuzzleID)}px`).delay(beat/2)
 		// TODO: the 30 and 360 are hard-coded, should be computed from game width
 	selChallenge
 		.selectAll('div.puzzle-score').html(puzzle => 
-			`Puzzle #${puzzle.ID+1}`
+			`Puzzle <bold>#${puzzle.ID+1}</bold>`
 			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
 			+ `Score: ${puzzle.finished ? puzzle.finalGuessCount : puzzle.cursorPos.guessRow}/${puzzle.maxGuesses}`
 		)
@@ -95,7 +103,7 @@ const updateDOMFromChallenge = (selChallenge, challenge) => {
 		//       except update only includes elements before the enter
 		//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
 	
-	// for each puzzle add/update 6 or 7 guess rows
+	// for each puzzle add/update all the guess rows
 	selChallenge.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
 		//this is called for each div.puzzle DOM element
 		//puzzleState (puzzle)
