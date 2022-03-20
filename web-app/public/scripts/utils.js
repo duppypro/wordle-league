@@ -30,6 +30,7 @@ const removeSubsetAtIndexes = (
 	return subset
 }
 
+// see https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
 const base64Alphabet =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".split('')
 const safeForURLBase64Alphabet =
