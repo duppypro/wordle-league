@@ -56,9 +56,11 @@ const encodeChallengeIDToVersionA = (challenge) => {
 		solutionOffsetsIndex,
 	} = challenge
 	let version = 'A'
-	
+
 	let b = base64Alphabet[(sharedStartWordMode?1:0) * 32 + numPuzzles]
 	b = b + ('00000' + (solutionOffsetsIndex * 3000 + solutionStartIndex)).slice(-5)
+	// TODO: for future version of format, data can be packed more efficiently
+	// number can be encoded as a "binary string" with a full 8 bits per byte
 
 	return version + encodeToURLSafeBase64(b)
 }
@@ -97,7 +99,7 @@ const decodeChallengeID = (possibleID) => {
 			c.sharedStartWordMode = false
 		}
 		c.numPuzzles = num
-		
+
 		scratch = 0 + scratch.slice(1)
 		c.solutionStartIndex = scratch % 3000
 		c.solutionOffsetsIndex = Math.floor(scratch / 3000)
@@ -115,23 +117,23 @@ class WordleChallenge {
 		// make a default challenge object to be overwritten by values coded in possibleID
 		this.numPuzzles = 5
 		this.sharedStartWordMode = false // this mode does not make sense until I code hard mode and harder mode
-		
+
 		// pick indexes for the random words
 		this.solutionStartIndex = randomIndex(possibleSolutionWords.length)
 		this.solutionOffsetsIndex = randomIndex(randomOffsets.length)
-			
+
 		this.startWordStartIndex = randomIndex(possibleSolutionWords.length - this.numPuzzles)
 		this.startWordOffsetsIndex = randomIndex(randomOffsets.length)
-		
+
 		// now overwrite with values including ID encoded in possibleID if any
 		const savedChallengeEntries = decodeChallengeID(possibleID) || {}
 		// if possibleID was invalid then this loop won't execute, this will be untouched
 		for (const [key, value] of Object.entries(savedChallengeEntries)) {
 			this[key] = value
 		}
-		
+
 		this.ID = encodeChallengeID(this)
-			
+
 		// now construct rest of challenge object derivable from existing entries
 		this.nowPuzzleID = 0
 		this.keyboardHints = {}
@@ -156,8 +158,8 @@ class WordleChallenge {
 				allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
 					(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
 						(x, i) => ({letter: '', hint: 'empty'})
-						)
-						),
+					)
+				),
 				maxGuesses: undefined,
 				cursorPos: {guessRow:0, letterCol: this.sharedStartWordMode ? 5 : 0},
 				// cursorPos.letterCol == 0 is waiting for the first letterCol of the guess, == 4 is waiting for the fifth letter
@@ -166,7 +168,7 @@ class WordleChallenge {
 				finished: false,
 				finalGuessCount: undefined,
 			}
-			
+
 			if (this.sharedStartWordMode) {
 				// put a random start word as the first guess
 				puzzle.allGuesses = [
@@ -177,7 +179,7 @@ class WordleChallenge {
 			}
 			puzzle.maxGuesses = puzzle.allGuesses.length // convenience variable
 			puzzle.finalGuessCount = puzzle.maxGuesses + 2 // default to failure which is max guesses + 2
-			
+
 			return puzzle
 		})
 	}
@@ -215,13 +217,17 @@ const assignHintsFromSolution = (tiles, solution, kbdHints) => {
 	tiles.forEach((tile, i) => {
 		if (tile.hint == 'tbd' || tile.hint == 'empty') { // only if it hasn't been marked yet
 			const pos = testSolution.indexOf(tile.letter)
-			if (pos == -1) { // if not found
-				tile.hint = 'absent'
-				kbdHints[tile.letter] = 'absent'
-			} else {
+			if (pos != -1) { // if found - prioritize correct over present over absent
 				tile.hint = 'present'
-				kbdHints[tile.letter] = 'present'
 				testSolution[pos] = '.' // mark/remove this to make double letters work
+				if (kbdHints[tile.letter] != 'correct') {
+					kbdHints[tile.letter] = 'present'
+				}
+			} else {
+				tile.hint = 'absent'
+				if (kbdHints[tile.letter] != 'correct' && kbdHints[tile.letter] != 'present') {
+					kbdHints[tile.letter] = 'absent'
+				}
 			}
 		}
 	})
