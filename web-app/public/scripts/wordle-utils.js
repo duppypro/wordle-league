@@ -144,10 +144,8 @@ class WordleChallenge {
 		this.startWordOffsets = randomOffsets[this.startWordOffsetsIndex].slice(0,this.numPuzzles-1)
 			.map((n) => this.startWordStartIndex + n)
 		this.startWordIndexes = [this.startWordStartIndex, ...this.startWordOffsets]
-		this.solutionByID = removeSubsetAtIndexes(possibleSolutionWords, this.solutionIndexes),
-		this.startWordByID = this.sharedStartWordMode
-			? removeSubsetAtIndexes(possibleSolutionWords, this.startWordIndexes)
-			: []
+		this.solutionByID = removeSubsetAtIndexes(possibleSolutionWords, this.solutionIndexes)
+		this.startWordByID = removeSubsetAtIndexes(possibleSolutionWords, this.startWordIndexes)
 
 		this.puzzles = new Array(this.numPuzzles).fill(true).map((x_, i) => {
 			// init new single puzzle state

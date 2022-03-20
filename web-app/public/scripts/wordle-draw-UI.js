@@ -72,7 +72,7 @@ const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
 	// always recreate this because both DOM and puzzles might have changed
 	selChallenge
 		.select("#challenge-puzzles")
-		.style('height', `${17 + (5+48+2+2)*(puzzles[0].maxGuesses)}px`) // TODO: this assumes no puzzles have more guesses than the first puzzle
+		.style('height', `${17 + (5+48+2+2)*(puzzles.reduce((max, p) => Math.max(max, p.maxGuesses),0))}px`)
 		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
 		.join(
@@ -91,7 +91,18 @@ const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
 				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
 		)
 		/* update old and new together here, the .join() merges first 2 sets, not the exit set */
-		.transition().duration(2*beat).style('left', puzzle => `${42 + 360*(puzzle.ID - nowPuzzleID)}px`).delay(beat/2)
+		.filter(d => {
+			//only apply transitions if the target has changed
+			return d.targetPuzzleID != nowPuzzleID
+		})
+			.transition()
+				.each(d => {
+					// mark this element as on the way to its target new position
+					d.targetPuzzleID = nowPuzzleID
+				})
+				.duration(2*beat)
+				.style('left', puzzle => `${42 + 360*(puzzle.ID - nowPuzzleID)}px`)
+			.delay(beat/2)
 		// TODO: the 30 and 360 are hard-coded, should be computed from game width
 	selChallenge
 		.selectAll('div.puzzle-score').html(puzzle => 
