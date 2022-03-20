@@ -17,7 +17,7 @@
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-size: 16px;
 		--header-height: 24px;
-		--score-height: 64px;
+		--score-height: 72px;
 		--keyboard-height: 152px;
 		--game-max-width: 360px;
 
@@ -143,6 +143,12 @@
 		letter-spacing: 0.01em;
 		text-align: center;
 		pointer-events: none;
+	}
+
+	header .uid {
+		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+		font-weight: 200;
+		font-size: 18px;
 	}
 
 	#challenge-puzzles {

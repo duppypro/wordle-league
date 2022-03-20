@@ -17,6 +17,7 @@
 		<script defer src="/__/firebase/init.js?useEmulator=false"></script>
 
 		<link rel="stylesheet" href="./css/wordle-challenge.css">
+		<!-- switch to using shadow DOM and programatically load style on shadow roots -->
 	</head>
 	<body class="nightmode">
 	<!-- <body class="nightmode" style="background-color:black; color: whitesmoke;"> -->
@@ -33,6 +34,7 @@
 		</script>
 		<!-- Wordle Challenge goes here -->
 		<div id="game-app">
+			<!-- TODO: -->
 			<header>
 				<div class="menu-left">
 				</div>
@@ -52,11 +54,11 @@
 		<!-- Load third party libraries (firebase loaded inline above) -->
 		<script src="https://d3js.org/d3.v7.min.js"></script>
 		<!-- Load Wordle scripts -->
-		<!-- TODO: switch to using import of local scripts -->
+		<!-- TODO: switch to using javascript import from inside ./scripts -->
 		<script src="./scripts/wordle-set-defaults.js"></script>
 		<script src="./scripts/utils.js"></script>
 		<script src="./scripts/wordle-utils.js"></script>
-		<script src="./scripts/wordle-DOM-UI.js"></script>
+		<script src="./scripts/wordle-draw-UI.js"></script>
 		<script src="./scripts/play-wordle-challenge.js"></script>
 	</body>
 </html>
