@@ -15,9 +15,9 @@
 		--orange: #f5793a;
 		--blue: #85c0f9;
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
-		font-size: 16px;
+		font-size: 18px;
 		--header-height: 24px;
-		--score-height: 72px;
+		--score-height: 80px;
 		--keyboard-height: 152px;
 		--game-max-width: 360px;
 
@@ -124,12 +124,7 @@
 	}
 
 	header {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		flex-wrap: nowrap;
-		padding: 0 16px;
+		display: flex;		
 		height: var(--header-height);
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
@@ -141,24 +136,28 @@
 	}
 	
 	header .title {
-		font-family: 'Lucida,Helvetica,sans-serif';
-		font-weight: bolder;
-		font-size: 26px;
-		line-height: 100%;
-		letter-spacing: 0.01em;
-		text-align: center;
+		margin: auto auto auto 4px;
+		/* font-family: 'Lucida,Helvetica,sans-serif'; */
+		font-weight: bold;
+		font-size: larger;
+		line-height: 90%;
+		/* letter-spacing: 0.01em; */
+		text-align: bottom;
 		pointer-events: none;
 		/* make selectable */
 		-moz-user-select: none;
 		-webkit-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
+		text-transform: uppercase;
 	}
 
 	header .uid {
+		margin: auto;
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 		font-weight: 200;
-		font-size: 18px;
+		font-size: normal;
+		line-height: 90%;
 		text-align: center;
 		/* make selectable */
 		-moz-user-select: text;
@@ -169,20 +168,21 @@
 
 	#challenge-puzzles {
 		position: relative;
-		width: 360px;
+		width: var(--game-max-width);
 		height: calc(100% - var(--score-height) - var(--keyboard-height));
 		padding: 0px 0px 16px 0px;
 		overflow: hidden;
 	}
+
 	#challenge-score {
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
 		font-family: inherit;
 		font-weight: normal;
-		font-size: 16px;
+		font-size: normal;
 		line-height: var(--score-height);
 		letter-spacing: 0.01em;
-		text-align: center;
+		text-align: left;
 		right: 0;
 		pointer-events: none;
 	}
@@ -202,17 +202,12 @@
 		justify-content: flex-end;
 	}
 
-	@media (min-width: 415px) {
-		header {
-			padding: 0px 16px;
-		}
-	}
-
-	@media (max-width: 360px) {
-		header .title {
-			font-size: 22px;
-			letter-spacing: 0.1rem;
-		}
+	.score-as-emoji {
+		margin-left: 0px;
+		font-family: monospace;
+		font-size: 10px;
+		line-height: 13px;
+		letter-spacing: -2px;
 	}
 
 	.puzzle-container {
@@ -229,11 +224,11 @@
 		overflow: hidden;
 	}
 
-	.puzzle-score {
+	/* .puzzle-score {
 		line-height: 2em;
 		text-align: center;
 	}
-
+ */
 	.puzzle {
 		display: grid;
 		grid-template-rows: repeat(6, 1fr);
@@ -411,4 +406,20 @@
 	#challenge-keyboard button[hint='absent'] {
 		background-color: var(--key-bg-absent);
 		color: var(--key-evaluated-text-color);
+	}
+
+	@media (min-width: 415px) {
+		header {
+			padding: 0px 16px;
+		}
+	}
+
+	@media (max-width: 359px) {
+		:root {
+			font-size: 15px;
+			--header-height: 24px;
+			--score-height: 80px;
+			--keyboard-height: 120px;
+			--game-max-width: 320px;	
+		}
 	}

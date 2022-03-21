@@ -51,6 +51,13 @@ const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
 		numPuzzles,
 	} = challenge
 
+	// Update Title and game unique ID
+	d3.select('#game-app header') // TODO: don't update every time, only when ID changes
+	.html(
+		`<div class="title">Wordle Challenge</div>`
+		+ `<div class='uid'>${challenge.ID}</div>`
+	)
+
 	// create DOM elements for keyboard and attach touch listeners if it doesn't exist yet
 	if (selChallenge.select('#challenge-keyboard').select('*').empty()) {
 		createKeyboardD3Selection(selChallenge.select('#challenge-keyboard'))
@@ -58,9 +65,23 @@ const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
 	drawKeyboardHintsFromChallenge(selChallenge, challenge)
 
 	// Update progress and final score
+	/* Example of a Wordle share
+	Wordle 274 2/6
+
+⬛🟨🟨⬛⬛
+🟩🟩🟩🟩🟩
+	*/
 	selChallenge.select('#challenge-score')
 		.html(
-			`Progress: ${nowPuzzleID} of ${numPuzzles}`
+			`<div class="score-as-emoji">`
+			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
+			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
+			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
+			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
+			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
+			+ `🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥`
+			+`</div>`
+			+ `Progress: ${nowPuzzleID} of ${numPuzzles}`
 			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
 			+ `Final Score: ${
 				nowPuzzleID == numPuzzles // are all puzzles scored yet?
@@ -78,7 +99,7 @@ const updateD3SelectionFromChallenge = (selChallenge, challenge) => {
 		.join(
 			enter => {
 				const selContainer = enter.append('div').attr('class', 'puzzle-container')
-				selContainer.append('div').attr('class', 'puzzle-score')
+				// selContainer.append('div').attr('class', 'puzzle-score')
 				selContainer.append('div').attr('class', 'puzzle')
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
