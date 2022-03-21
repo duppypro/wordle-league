@@ -4,52 +4,19 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Wordle Challenge</title>
-
-		<!-- update the version number as needed -->
-		<script defer src="/__/firebase/9.6.8/firebase-app-compat.js"></script>
-		<!-- include only the Firebase features as you need -->
-		<script defer src="/__/firebase/9.6.8/firebase-auth-compat.js"></script>
-		<script defer src="/__/firebase/9.6.8/firebase-database-compat.js"></script>
-		<!-- 
-			initialize the SDK after all desired features are loaded, set useEmulator to false
-			to avoid connecting the SDK to running emulators.
-		-->
-		<script defer src="/__/firebase/init.js?useEmulator=false"></script>
-
 		<link rel="stylesheet" href="./css/wordle-challenge.css">
-		<!-- switch to using shadow DOM and programatically load style on shadow roots -->
 	</head>
 	<body class="nightmode">
-	<!-- <body class="nightmode" style="background-color:black; color: whitesmoke;"> -->
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				// // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-				// // The Firebase SDK is initialized and available here!
-				try {
-					let fbApp = firebase.app();
-				} catch (e) {
-					console.error(e);
-				}
-			})
-		</script>
-		<!-- Wordle Challenge goes here -->
 		<div id="game-app">
-			<!-- TODO: -->
-			<header>
-				<div class="title">Wordle Challenge</div>
-				<div class="uid">Wordle Challenge</div>
-			</header>
-			<div id="challenge">
-				<div id="challenge-score"></div>
-				<div id="challenge-puzzles"></div>
-				<div id="challenge-keyboard"></div>
-			</div>
+			<!-- Wordle Challenge goes here -->
 		</div>
 
-		<!-- Load third party libraries (firebase loaded inline above) -->
+		<!-- Load third party libraries -->
+		<!-- TODO: use import js modules to load these -->
 		<script src="https://d3js.org/d3.v7.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
 		<!-- Load Wordle scripts -->
-		<!-- TODO: switch to using javascript import from inside ./scripts -->
+		<!-- TODO: switch to using javascript import modules -->
 		<script src="./scripts/wordle-set-defaults.js"></script>
 		<script src="./scripts/utils.js"></script>
 		<script src="./scripts/wordle-utils.js"></script>

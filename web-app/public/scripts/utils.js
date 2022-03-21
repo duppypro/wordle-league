@@ -20,13 +20,16 @@ const removeSubsetAtIndexes = (
 	indexes, // an array of indexes into the source array
 ) => {
 	const subset = [] // the words to return
-
-	indexes.forEach((index) => {
-		subset.push(source.splice(index % source.length,1)[0])
+	for (const index of indexes) {
 		// splice(randomI,1) removes element randomI from the source and returns an array of length 1
 		// [0] grabs the first (and only) word of that array
+		const value = source.splice(index % source.length,1)[0]
+		if (!value) {
+			console.warn(`source array too short, return undefined entries`)
+		}
 		// .push() that word onto the return subset
-	})
+		subset.push(value)
+	}
 	return subset
 }
 
