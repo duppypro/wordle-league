@@ -5,7 +5,7 @@ const allValidLetters = "abcdefghijklmnopqrstuvwxyz".split('')
 const possibleSolutionWords = Array.from(WORDLE_SET_FROM.OG.possibleSolutionWords)
 const allValidWords = WORDLE_SET_FROM.OG.possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
 
-// I want IDs to be short.
+// I want IDs to be short so they are easier to share
 // So only pick ~1000 offset patterns and start them on random indexes
 // this makes ~2.7 million different challenges.
 // So effectively random as in unguessable but with a manageable length ID
@@ -29,22 +29,61 @@ const encodeChallengeIDToVersionA = (challenge) => {
 
 	return version + encodeToURLSafeBase64(b)
 }
-const encodeChallengeID = encodeChallengeIDToVersionA
+
+const encodeChallengeIDToVersionB = (challenge) => {
+	let {
+		numPuzzles,
+		sharedStartWordMode,
+		solutionStartIndex,
+		solutionOffsetsIndex,
+	} = challenge
+
+	let version = 'B'
+		// version 'B' encodes more options in fewer URL safe characters
+		// possibleID[0] = 'B' a.k.a. safeForURLBase64Alphabet[1] 
+		// possibleID[1]..[4] = base64 encoded
+		//     4 chars [1]..[4] decodes to 3 binary string bytes
+		//     use full 'binary string' 8 bits per char = 24bits
+		//     bits 0..4   = numPuzzles, 5 bits allows 1..32 numPuzzles
+		//     bit 5       = sharedStartWordMode, 1 bit = true or false
+		//     bits 6..17  = solutionStartIndex, 12 bits = max 4096 solutions (about ~2300 today)
+		//     bits 18..23 = solutionOffsetsIndex, 6 bits = max 64 possible offset sequences
+
+	let n = 0
+	n = n + (2**0)  * (numPuzzles - 1) // map numPuzzles 1..32 to 0..31
+	n = n + (2**5)  * (sharedStartWordMode ? 1 : 0)
+	n = n + (2**6)  * (solutionStartIndex)
+	n = n + (2**18) * (solutionOffsetsIndex)
+	if (n >= 2**24) {
+		throw new Error('encoding to version B values too large??')
+	}
+
+	let binaryString = ''
+	binaryString = binaryString + String.fromCharCode(n % 256)
+	n = Math.floor(n /256)
+	binaryString = binaryString + String.fromCharCode(n % 256)
+	n = Math.floor(n /256)
+	binaryString = binaryString + String.fromCharCode(n % 256)
+	
+	return version + encodeToURLSafeBase64(binaryString)
+}
+
+const encodeChallengeID = encodeChallengeIDToVersionB
 
 const decodeChallengeID = (possibleID) => {
-	const c = {}
+	const c = {} // an object with a subset of saved properties to return
 	let scratch
 	let num
 
 	if (!possibleID || !possibleID.length) {
-		return {} // reject
+		return {} // reject this possibleID
 	}
 
 	const version = possibleID[0] // first character is version of challenge ID encoding
 	if (version == 'A') {
 		// decode format version 'A' a.k.a. safeForURLBase64Alphabet[0] 
 		if (possibleID.length != 9) {
-			return c // reject if wrong length
+			return {} // reject if wrong length
 		}
 		// possibleID[0] = 'A' a.k.a. safeForURLBase64Alphabet[0] 
 		// possibleID[1]..[8] = base64 encoded
@@ -56,6 +95,9 @@ const decodeChallengeID = (possibleID) => {
 		// possibleID[1] = numPuzzles
 
 		scratch = decodeFromURLSafeBase64(possibleID.slice(1))
+		if (!scratch || scratch.length != 6) {
+			return {}
+		}
 		num = base64Alphabet.indexOf(scratch[0])
 		if (num >= 32) {
 			num -= 32
@@ -68,9 +110,41 @@ const decodeChallengeID = (possibleID) => {
 		scratch = 0 + scratch.slice(1)
 		c.solutionStartIndex = scratch % 3000
 		c.solutionOffsetsIndex = Math.floor(scratch / 3000)
+	} else if (version == 'B') {
+		// decode format version 'B' a.k.a. safeForURLBase64Alphabet[1] 
+		// version 'B' encodes more options in fewer URL safe characters
+		if (possibleID.length != 5) {
+			return {} // reject if wrong length
+		}
+		// possibleID[0] = 'B' a.k.a. safeForURLBase64Alphabet[1] 
+		// possibleID[1]..[4] = base64 encoded
+		//     4 chars [1]..[4] decodes to 3 binary string bytes
+		//     use full 'binary string' 8 bits per char = 24bits
+		//     bits 0..4   = numPuzzles, 5 bits allows 1..32 numPuzzles
+		//     bit 5       = sharedStartWordMode, 1 bit = true or false
+		//     bits 6..17  = solutionStartIndex, 12 bits = max 4096 solutions (about ~2300 today)
+		//     bits 18..23 = solutionOffsetsIndex, 6 bits = max 64 possible offset sequences
+		scratch = decodeFromURLSafeBase64(possibleID.slice(1))
+		if (!scratch || scratch.length != 3) {
+			return {}
+		}
+		num = scratch.charCodeAt(0) + 256*scratch.charCodeAt(1) + 256*256*scratch.charCodeAt(2)
+
+		c.numPuzzles             = num % (2** 5) + 1
+		num           = Math.floor(num / (2** 5))
+
+		c.sharedStartWordMode    = num % (2** 1) ? true : false
+		num           = Math.floor(num / (2** 1))
+
+		c.solutionStartIndex     = num % (2**12)
+		num           = Math.floor(num / (2**12))
+		
+		c.solutionOffsetsIndex   = num % (2** 6)
+		//num                      = Math.floor(num / (2** 6))
 	} else {
 		// do not know how to decode this version
 		console.warn('Unrecognized chalengeID version in URL', possibleID)
+		return {} // reject this possibleID
 	}
 
 	return c
@@ -105,10 +179,10 @@ class WordleChallenge {
 
 		this.solutionOffsets = randomOffsets[this.solutionOffsetsIndex].slice(0,this.numPuzzles-1)
 			.map((n) => this.solutionStartIndex + n)
-		this.solutionIndexes = [this.solutionStartIndex, ...this.solutionOffsets]
+		this.solutionIndexes = [0, ...this.solutionOffsets].map((i) => i + this.solutionStartIndex) // shift all indexes by startIndex
 		this.startWordOffsets = randomOffsets[this.startWordOffsetsIndex].slice(0,this.numPuzzles-1)
 			.map((n) => this.startWordStartIndex + n)
-		this.startWordIndexes = [this.startWordStartIndex, ...this.startWordOffsets]
+		this.startWordIndexes = [0, ...this.startWordOffsets].map((i) => i + this.startWordStartIndex) // shift all indexes by startIndex
 		this.solutionByID = removeSubsetAtIndexes(possibleSolutionWords, this.solutionIndexes)
 		this.startWordByID = removeSubsetAtIndexes(possibleSolutionWords, this.startWordIndexes)
 
