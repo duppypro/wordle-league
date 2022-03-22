@@ -32,7 +32,7 @@ if (challenge.ID != challengeIDFromURL) { // if challenge was created with new I
 // draw the initial state
 // names ending in `Sel` are D3js selection objects
 const gameSel = d3.select('#game-app')
-drawNewGame(gameSel, challenge)
+drawNewGame(gameSel, challenge) // TODO: make this a class, use new WordleUI or new WordleDOM?
 
 // define event listeners
 const updateGameOnKeydown = (e) => {

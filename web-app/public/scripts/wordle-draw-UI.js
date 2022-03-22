@@ -8,6 +8,17 @@ const redrawKeyboard = (keybaordSel, challenge) => {
 	})
 }
 
+const emojiFromHint = (hint) => {
+	const emoji = {
+		correct: '🟩',
+		present: '🟨',
+		absent: '⬛',
+		empty: '➖',
+		tbd: '➖',
+	}[hint] || '&nbsp;'
+	return emoji
+}
+
 const redrawChallenge = (challengeSel, challenge) => {
 	let { // convenience renaming
 		puzzles,
@@ -20,28 +31,27 @@ const redrawChallenge = (challengeSel, challenge) => {
 
 	// Update progress and final score
 	challengeSel.select('#challenge-score')
-		.html(
-			`<div class="score-as-emoji">`
-			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
-			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
-			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
-			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
-			+ `🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩&nbsp;&nbsp;🟩🟨⬛🟥🟩<br>`
-			+ `🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥&nbsp;&nbsp;🟥🟥🟥🟥🟥`
-			+`</div>`
-			+ `Progress: ${nowPuzzleID} of ${numPuzzles}`
-			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
-			+ `Final Score: ${
-				nowPuzzleID == numPuzzles // are all puzzles scored yet?
-					? puzzles.reduce((sum, p) => sum + p.finalGuessCount, 0) / numPuzzles // average of all guess counts
-					: '-' // or nothing if still in progress
-			}`	
+		.selectAll('div.mini-score')
+		.data(puzzles, puzzle => puzzle.ID) // make a mini-score for each puzzle in this challenge
+		.join(
+			enter => enter.append('div').attr('class', 'mini-score'),
+			old => old,
+			exit => exit,
 		)
+		.html((puzzle) => {
+			let text = ''
+			puzzle.allGuesses.forEach((guess) => {
+				text = text + guess.map((tile) => emojiFromHint(tile.hint)).join('')
+				text = text + '<br>'
+			})
+			return text
+		})
+			//   `🟩🟨⬛🟥🟩<br>`
+			// + `🟥🟥🟥🟥🟥`
 
 	// update all the puzzles in this challenge
-	challengeSel
-		.select("#challenge-puzzles")
-		.style('height', `${17 + (5+48+2+2)*(puzzles.reduce((max, p) => Math.max(max, p.maxGuesses),0))}px`)
+	challengeSel.select("#challenge-puzzles")
+		.style('height', `${17 + (48+2+2)*(puzzles.reduce((max, p) => Math.max(max, p.maxGuesses),0))}px`)
 		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
 		.join(
@@ -51,13 +61,12 @@ const redrawChallenge = (challengeSel, challenge) => {
 				selContainer.append('div').attr('class', 'puzzle')
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
-					.style('left', puzzle => `${42 + 360*(1 + puzzle.ID - nowPuzzleID)}px`)
+					.style('left', puzzle => `${49.5 + 375*(1 + puzzle.ID - nowPuzzleID)}px`)
+					.style('top', '8px')
 				return selContainer
 			},
 			old => old,
-			exit => exit // NOTE: these never exit yet - untested
-				.transition().duration(2*beat).style('left','-360px').delay(beat/2)
-				.on('end', function () {this.parentElement.remove()}), // remove the parent puzzle-container
+			exit => exit,
 		)
 		// update old and new together here, the .join() merges first 2 sets, not the exit set
 		.filter(d => {
@@ -71,9 +80,9 @@ const redrawChallenge = (challengeSel, challenge) => {
 					d.targetPuzzleID = nowPuzzleID
 				})
 				.duration(2*beat)
-				.style('left', puzzle => `${42 + 360*(puzzle.ID - nowPuzzleID)}px`)
+				.style('left', puzzle => `${49.5 + 375*(puzzle.ID - nowPuzzleID)}px`)
 			.delay(beat/2)
-		// TODO: the 42 and 360 are hard-coded, should be computed from game width
+		// TODO: the 49.5 and 375 are hard-coded, should be computed from game width
 	
 	// update each puzzle's score
 	challengeSel
@@ -179,7 +188,7 @@ const drawNewGame = (gameSel, challenge) => {
 	gameSel.append('header')
 		.html(
 			`<div class="title"> Wordle Challenge </div>`
-			+ `<div class='uid'>${challenge.ID}</div>`
+			+ `<div class='uid'>ID=${challenge.ID}</div>`
 		)
 
 	// Create challenge board

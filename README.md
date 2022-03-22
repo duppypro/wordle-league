@@ -27,3 +27,5 @@ TODO:
 - [ ] enable create/join/leave teams (teams is what makes it a Wordle League instead of just Wordle Challenges)
 - [ ] offer choice of word set. Defaulting to original Josh Whordle
 - [ ] bind puzzles to fixed time periods (assume local Day)
+- [ ] Re-factor update challenge state as method in challenge Class
+- [ ] Re-factor style sheet to be created programatically from redraw module
