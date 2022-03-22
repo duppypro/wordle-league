@@ -6,29 +6,12 @@ const possibleSolutionWords = Array.from(WORDLE_SET_FROM.OG.possibleSolutionWord
 const allValidWords = WORDLE_SET_FROM.OG.possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
 
 // I want IDs to be short so they are easier to share
-// So only pick ~1000 offset patterns and start them on random indexes
-// this makes ~2.7 million different challenges.
+// So only pick 64 offset patterns and start them on random indexes
+// this makes ~ 150,000 different challenges.
 // So effectively random as in unguessable but with a manageable length ID
-// each entry in randomOffsets supports 30 offsets allowing up to 31 solution words
+// each entry in randomOffsets supports 31 offsets allowing up to 32 solution words
 // still able to encode numPuzzles + 32*mode into a single base64 Char
 // 33 possible random offsets keeps
-
-const encodeChallengeIDToVersionA = (challenge) => {
-	let {
-		numPuzzles,
-		sharedStartWordMode,
-		solutionStartIndex,
-		solutionOffsetsIndex,
-	} = challenge
-	let version = 'A'
-
-	let b = base64Alphabet[(sharedStartWordMode?1:0) * 32 + numPuzzles]
-	b = b + ('00000' + (solutionOffsetsIndex * 3000 + solutionStartIndex)).slice(-5)
-	// TODO: for future version of format, data can be packed more efficiently
-	// number can be encoded as a "binary string" with a full 8 bits per byte
-
-	return version + encodeToURLSafeBase64(b)
-}
 
 const encodeChallengeIDToVersionB = (challenge) => {
 	let {
@@ -82,34 +65,7 @@ const decodeChallengeID = (possibleID) => {
 	const version = possibleID[0] // first character is version of challenge ID encoding
 	if (version == 'A') {
 		// decode format version 'A' a.k.a. safeForURLBase64Alphabet[0] 
-		if (possibleID.length != 9) {
-			return {} // reject if wrong length
-		}
-		// possibleID[0] = 'A' a.k.a. safeForURLBase64Alphabet[0] 
-		// possibleID[1]..[8] = base64 encoded
-		//     [1]..[8] decodes to 6 chars
-		//     first char: base64Alphabet[sharedStartWordMode * 32 + numPuzzles]
-		//     2nd..6th chars are offsetsIndex * 3000 + startIndex
-		//     Allows 99999 / 3000 = 33 different offsetsIndex
-		// possibleID[1] = numPuzzles
-		// possibleID[1] = numPuzzles
-
-		scratch = decodeFromURLSafeBase64(possibleID.slice(1))
-		if (!scratch || scratch.length != 6) {
-			return {}
-		}
-		num = base64Alphabet.indexOf(scratch[0])
-		if (num >= 32) {
-			num -= 32
-			c.sharedStartWordMode = true
-		} else {
-			c.sharedStartWordMode = false
-		}
-		c.numPuzzles = num
-
-		scratch = 0 + scratch.slice(1)
-		c.solutionStartIndex = scratch % 3000
-		c.solutionOffsetsIndex = Math.floor(scratch / 3000)
+		return {} // DEPRECATED because I changed randomOffsets[]
 	} else if (version == 'B') {
 		// decode format version 'B' a.k.a. safeForURLBase64Alphabet[1] 
 		// version 'B' encodes more options in fewer URL safe characters
