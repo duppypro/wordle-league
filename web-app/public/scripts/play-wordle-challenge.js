@@ -7,56 +7,54 @@
 // 	Contributors welcome
 // 	request at https://github.com/duppypro/wordle-league/issues
 
-//////////////////////////// USER + LEAGUE VIEW /////////////////////
-// TODO: login a user, provide anonymous view, transition anonymous stats to OAUTH2 user when user chooses
-// TODO: present all-time states to user, present list of all Challenges allow user to resume existing challenge or create/join new one
-// TODO: enable create/join/leave teams (teams is what makes it a Wordle League instead of just Wordle Challenges)
+//////////////////////////// LEAGUE VIEW /////////////////////
+// a league is a set of users and/or teams playing multiple challenges
 
 // init state for league
 let userID = 'this-session' // no user login yet
-// init DOM for league
-// League specific DOM Not implemented yet
 
 //////////////////////// CHALLENGE ///////////////////////////////////////
-// init challenge state. A challenge is a set of 5 (or n) puzzles with pre-selected solution order to compete among diff users
-// TODO: offer choice of word set. Defaulting to original
-// TODO: save state per user, currently just saves per session
-// TODO: bind puzzles to fixed time periods (assume local Day)
+// init challenge state. A challenge is a set of 5 (or n) puzzles with pre-selected order
 
 // retrieve challenge ID from URL
-let urlParams = new URLSearchParams(location.search)
-const challengeIDFromURL = urlParams.get('challengeID')
+let urlParams = new URLSearchParams(window.location.search)
+const challengeIDFromURL = urlParams.get('ID')
+
 // create new challenge
 const challenge = new WordleChallenge(challengeIDFromURL)
 // if this is a new Challenge, save it to the address bar
 if (challenge.ID != challengeIDFromURL) { // if challenge was created with new ID
-	urlParams.set('challengeID', challenge.ID) // replace with new ID
-	location.search = urlParams // post to the address bar, this will also reload the page
+	urlParams.set('ID', challenge.ID) // replace with new ID
+	window.location.search = urlParams // post to the address bar, this will also reload the page
 	throw new Error('page should have reloaded, how did we get here?')
 }
 
-// init DOM for Challenge
-const selChallenge = d3.select('#challenge')
+// draw the initial state
+// names ending in `Sel` are D3js selection objects
+const gameSel = d3.select('#game-app')
+drawNewGame(gameSel, challenge) // TODO: make this a class, use new WordleUI or new WordleDOM?
 
-// init DOM for puzzles
-d3.select('#game-app header div.title')
-	.html(`<span>Wordle Challenge&nbsp;&nbsp;&nbsp;</span><span class='uid'>${challenge.ID}</span>`)
-updateD3SelectionFromChallenge(selChallenge, challenge)
-// must call this once to init presentation, then this is also called later from anything that changes puzzle state such as event handlers
-
-const updateChallengeOnKeydown = (e) => {
-	updateChallengeFromKey(challenge, e.key)
-	updateD3SelectionFromChallenge(selChallenge, challenge)
-}
-
-const updateChallengeOnMousedown = (e) => {
-	const key = e && e.toElement && e.toElement.innerText
+// define event listeners
+const updateGameOnKeydown = (e) => {
+	const key = e && e.key
 	if (key) {
-		updateChallengeFromKey(challenge, key) // updates state only
-		updateD3SelectionFromChallenge(selChallenge, challenge) // updates UI only
+		updateGame(challenge, key) // updates state only
+		redrawGame(gameSel, challenge) // updates UI only
 	}
 }
 
-d3.select('body').on('keydown', updateChallengeOnKeydown)
-d3.select('#keyboard').on('mousedown', updateChallengeOnMousedown)
-// event listeners drive the game from here on
+const updateGameOnMousedown = (e) => {
+	const element = e && e.toElement
+	const key = element && element.innerText
+	// TODO: don't rely on innerText, should retrieve a button unique id
+	// then would not have to rely on filtering on tagName 'BUTTON'
+	if (element && element.tagName == 'BUTTON' && key) {
+		updateGame(challenge, key) // updates state only
+		redrawGame(gameSel, challenge) // updates UI only
+	}
+}
+
+// attach event listeners
+d3.select('body').on('keydown', updateGameOnKeydown)
+gameSel.on('mousedown', updateGameOnMousedown)
+// event listeners drive the game by calling update and redraw from here on
