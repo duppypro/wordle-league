@@ -100,7 +100,8 @@
 	}
 
 	html {
-		height: 100%;
+		height: 100vh;
+		width: 100vw
 	}
 
 	body {
@@ -109,16 +110,16 @@
 		margin: 0;
 		padding: 0;
 		/* Prevent scrollbar appearing on page transition */
-		overflow-y: hidden;
+		overflow: hidden-y;
 	}
 
 	/* below this is style from game-app shadow root */
 
 	#challenge {
-		width: 100%;
+		/* width: 100%; */
 		max-width: var(--game-max-width);
 		margin: 0 auto;
-		height: calc(100vh - var(--header-height));
+		/* height: calc(100% - var(--header-height)); */
 		display: flex;
 		flex-direction: column;
 	}
@@ -131,11 +132,6 @@
 		display: flex;		
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
-		/* make selectable */
-		-moz-user-select: all;
-		-webkit-user-select: all;
-		-ms-user-select: all;
-		user-select: all;
 	}
 	
 	header .title {
@@ -144,15 +140,8 @@
 		font-weight: bold;
 		font-size: larger;
 		line-height: 90%;
-		/* letter-spacing: 0.01em; */
 		text-align: bottom;
 		pointer-events: none;
-		/* make selectable */
-		-moz-user-select: none;
-		-webkit-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-		text-transform: uppercase;
 	}
 
 	header .uid {
@@ -162,19 +151,14 @@
 		font-size: normal;
 		line-height: 90%;
 		text-align: center;
-		/* make selectable */
-		-moz-user-select: text;
-		-webkit-user-select: text;
-		-ms-user-select: text;
-		user-select: text;
 	}
 
 	#challenge-puzzles {
+		overflow: hidden;
 		position: relative;
 		width: var(--game-max-width);
-		height: calc(100% - var(--score-height) - var(--keyboard-height));
-		padding: 0px 0px 16px 0px;
-		overflow: hidden;
+		height: calc(0.5rem + var(--game-max-width)*.736*6/5);
+		padding: 1rem 0px 0px 0px;
 	}
 
 	#challenge-score {
@@ -187,7 +171,7 @@
 		font-weight: normal;
 		font-size: normal;
 		line-height: var(--score-height);
-		letter-spacing: 0.01em;
+		letter-spacing: 0.01rem;
 		text-align: left;
 		right: 0;
 		pointer-events: none;
@@ -227,7 +211,6 @@
 		text-align: center;
 		flex-grow: 1;
 		flex-direction: column;
-		overflow: hidden;
 	}
 
 	.puzzle {
@@ -237,7 +220,8 @@
 		padding: 0px 0px 10px 0px;
 		box-sizing: border-box;
 		color: var(--color-tone-1);
-		width: 276px;
+		width: calc(100vw * .736);
+		/* width: 276px; */
 		/* height: 120px; override this programmatically based on numGuesses in game if needed */
 	}
 
@@ -288,12 +272,12 @@
 	}
 
 	/* Allow tiles to be smaller on small screens */
-	@media (max-height: 600px) {
+	/* @media (max-height: 600px) {
 		.tile {
 			font-size: 1em;
 			line-height: 1em;
 		}
-	}
+	} */
 
 	.tile[hint='empty'] {
 		border: 2px solid var(--color-tone-4);
@@ -366,6 +350,7 @@
 
 	#challenge-keyboard button.fade {
 		transition: background-color 0.1s ease, color 0.1s ease;
+		transition: background-color 0.1s ease, color 0.1s ease;
 	}
 
 	#challenge-keyboard button:last-of-type {
@@ -409,13 +394,13 @@
 		color: var(--key-evaluated-text-color);
 	}
 
-	@media (min-width: 415px) {
+	/* @media (min-width: 415px) {
 		header {
 			padding: 0px 16px;
 		}
 	}
-
-	@media (max-width: 359px) {
+ */
+	@media (max-width: 360px) {
 		:root {
 			font-size: 15px;
 			--header-height: 24px;
@@ -425,6 +410,6 @@
 		}
 
 		#challenge-keyboard button {
-			height: 30px;
+			height: 2rem;
 		}
 	}

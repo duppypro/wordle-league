@@ -15,8 +15,14 @@ const emojiFromHint = (hint) => {
 		absent: '⬛',
 		empty: '➖',
 		tbd: '➖',
+		invalid: '➖',
+		fail: '➖',
 	}[hint] || '&nbsp;'
 	return emoji
+}
+
+const leftPositionFromID = (ID) => {
+	return `calc((var(--game-max-width) - var(--game-max-width)*.736)/2 + var(--game-max-width)*${ID})`
 }
 
 const redrawChallenge = (challengeSel, challenge) => {
@@ -51,7 +57,6 @@ const redrawChallenge = (challengeSel, challenge) => {
 
 	// update all the puzzles in this challenge
 	challengeSel.select("#challenge-puzzles")
-		.style('height', `${17 + (48+2+2)*(puzzles.reduce((max, p) => Math.max(max, p.maxGuesses),0))}px`)
 		.selectAll('div.puzzle-container')  // NYT Wordle calls this 'div#game div#board-container div#board'
 		.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
 		.join(
@@ -61,8 +66,8 @@ const redrawChallenge = (challengeSel, challenge) => {
 				selContainer.append('div').attr('class', 'puzzle')
 					.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 				selContainer
-					.style('left', puzzle => `${49.5 + 375*(1 + puzzle.ID - nowPuzzleID)}px`)
-					.style('top', '8px')
+					.style('left', puzzle => leftPositionFromID(1 + puzzle.ID - nowPuzzleID))
+					.style('top', '0.5rem')
 				return selContainer
 			},
 			old => old,
@@ -80,7 +85,7 @@ const redrawChallenge = (challengeSel, challenge) => {
 					d.targetPuzzleID = nowPuzzleID
 				})
 				.duration(2*beat)
-				.style('left', puzzle => `${49.5 + 375*(puzzle.ID - nowPuzzleID)}px`)
+				.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
 			.delay(beat/2)
 		// TODO: the 49.5 and 375 are hard-coded, should be computed from game width
 	

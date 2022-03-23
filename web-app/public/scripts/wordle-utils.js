@@ -86,17 +86,23 @@ const decodeChallengeID = (possibleID) => {
 		}
 		num = scratch.charCodeAt(0) + 256*scratch.charCodeAt(1) + 256*256*scratch.charCodeAt(2)
 
-		c.numPuzzles             = num % (2** 5) + 1
+		c.numPuzzles             = num % (2** 5) + 1 // 5 bits and map 0..31 -> 1..32
 		num           = Math.floor(num / (2** 5))
 
-		c.sharedStartWordMode    = num % (2** 1) ? true : false
+		c.sharedStartWordMode    = num % (2** 1) ? true : false // 1 bit and map 1:0 to true:false explicitly
 		num           = Math.floor(num / (2** 1))
 
-		c.solutionStartIndex     = num % (2**12)
+		c.solutionStartIndex     = num % (2**12) // 12 bits - must check later for limit
 		num           = Math.floor(num / (2**12))
 		
-		c.solutionOffsetsIndex   = num % (2** 6)
+		c.solutionOffsetsIndex   = num % (2** 6) // 6 bits - all values allowed
 		//num                      = Math.floor(num / (2** 6))
+
+		// check that values are currently supprted
+		if (c.numPuzzles > 5) return {} // only support 1-5 puzzles now
+		if (c.sharedStartWordMode) return {} // don't support this mode yet
+		if (c.solutionStartIndex >= possibleSolutionWords.length) return {} // don't support different word sets yet
+		// solutionOffsetsIndex all 0..63 possible values are allowed
 	} else {
 		// do not know how to decode this version
 		console.warn('Unrecognized chalengeID version in URL', possibleID)
