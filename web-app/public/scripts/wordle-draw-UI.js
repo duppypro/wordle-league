@@ -88,7 +88,7 @@ const redrawChallenge = (challengeSel, challenge) => {
 		// TODO: the 49.5 and 375 are hard-coded, should be computed from game width
 	
 	// update each puzzle's score
-	challengeSel
+	challengeSel // This is not created so not used now
 		.selectAll('div.puzzle-score').html(puzzle => 
 			`Puzzle <bold>#${puzzle.ID+1}</bold>`
 			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
@@ -123,16 +123,39 @@ const redrawChallenge = (challengeSel, challenge) => {
 					exit => exit,
 				)
 				// update all here because .join() returns merge of enter() and old()
-				.text(tile => tile.letter)
-				.attr('hint', tile => tile.hint)
-				// .style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
+				.filter(function(tile,i,nodes) {
+					return d3.select(this).text() != tile.letter // if letter is changing
+				})
+					.text(tile => tile.letter)
+					.attr('hint', tile => tile.hint)
+					.transition()
+						.duration(beat/4)
+						.style('transform','scale(0.75)')
+					.transition()
+						.duration(beat/4)
+						.style('transform','scale(1)')
+			})
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.game-tile div.tile')
+				.filter(function(tile,i,nodes) {
+					return d3.select(this).attr('hint') != tile.hint // if hint is changing
+				})
+					.text(tile => tile.letter)
+					.transition()
+						.duration(beat/5)
+						.style('transform','rotateX(-90deg)')
+						.delay((tile, i, nodes) => i*(beat/5 + beat/5))
+					.transition()
+						.duration(beat/5)
+						.style('transform','rotateX(0deg)')
+						.attr('hint', tile => tile.hint)
 			})
 	}) // end selPuzzles.each()
 
 	// NOTE: overkill - update all hints here so they show even on exiting DOM elements.  Optimize later
-	challengeSel.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
-		.text(tile => tile.letter)
-		.attr('hint', tile => tile.hint)
+	// challengeSel.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
+	// 	.text(tile => tile.letter)
+	// 	.attr('hint', tile => tile.hint)
 }
 
 const drawNewKeyboard = (keybaordSel) => {
