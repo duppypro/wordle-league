@@ -16,7 +16,7 @@ const emojiFromHint = (hint) => {
 		empty: '➖',
 		tbd: '➖',
 		invalid: '➖',
-		fail: '➖',
+		fail: '🟥',
 	}[hint] || '&nbsp;'
 	return emoji
 }
@@ -52,8 +52,6 @@ const redrawChallenge = (challengeSel, challenge) => {
 			})
 			return text
 		})
-			//   `🟩🟨⬛🟥🟩<br>`
-			// + `🟥🟥🟥🟥🟥`
 
 	// update all the puzzles in this challenge
 	challengeSel.select("#challenge-puzzles")
