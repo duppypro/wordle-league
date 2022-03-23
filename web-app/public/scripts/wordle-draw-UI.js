@@ -1,6 +1,6 @@
 'use strict'
 ///////////////////////// WORDLE UI FUNCTIONS //////////////////
-const beat = 666 //333 // for animations speed, units are in msec
+const beat = 666 // 333 // for animations speed, units are in msec
 
 const redrawKeyboard = (keybaordSel, challenge) => {
 	keybaordSel.selectAll('button').each(function () {
@@ -82,13 +82,13 @@ const redrawChallenge = (challengeSel, challenge) => {
 					// so the transition does not get re-started on events
 					d.targetPuzzleID = nowPuzzleID
 				})
-				.duration(2*beat)
+				.duration(1.5*beat)
 				.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
-			.delay(beat/2)
+			.delay(() => ((nowPuzzleID > 0) ? (beat/2 + 4*beat) : 0))
 		// TODO: the 49.5 and 375 are hard-coded, should be computed from game width
 	
 	// update each puzzle's score
-	challengeSel
+	challengeSel // This is not created so not used now
 		.selectAll('div.puzzle-score').html(puzzle => 
 			`Puzzle <bold>#${puzzle.ID+1}</bold>`
 			+ `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`
@@ -118,21 +118,45 @@ const redrawChallenge = (challengeSel, challenge) => {
 				.join(
 					enter => enter
 						.append('div').attr('class','game-tile')
-						.append('div').attr('class','tile'),
+						.append('div').attr('class','tile')
+						.attr('hint','tbd'),
 					old => old,
 					exit => exit,
 				)
 				// update all here because .join() returns merge of enter() and old()
-				.text(tile => tile.letter)
-				.attr('hint', tile => tile.hint)
-				// .style('background-color', tile => hintColor[tile.hint]) // d3js.style() does not accept an object anymore
+				.filter(function(tile,i,nodes) {
+					return d3.select(this).text() != tile.letter // if letter is changing
+				})
+					.text(tile => tile.letter)
+					.attr('hint', tile => tile.hint)
+					.transition()
+						.duration(beat/4)
+						.style('transform','scale(0.75)')
+					.transition()
+						.duration(beat/4)
+						.style('transform','scale(1)')
+			})
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.game-tile div.tile')
+				.filter(function(tile,i,nodes) {
+					return (d3.select(this).attr('hint') != tile.hint) // if hint is changing
+				})
+					.text(tile => tile.letter)
+					.transition()
+						.duration((tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 0 : (beat/5))
+						.style('transform', tile => (tile.hint == 'invalid' ? 'rotate(-15deg)' : 'rotateX(-90deg)'))
+						.delay((tile, i, nodes) => (
+							((tile.hint == 'invalid') || nodes[i].getAttribute('hint') == 'invalid')
+								? 0
+								: i * (beat/5 + beat/5))
+						)
+					.transition()
+						.duration((tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 0 : (beat/5))
+						.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
+						.attr('hint', tile => tile.hint)
 			})
 	}) // end selPuzzles.each()
 
-	// NOTE: overkill - update all hints here so they show even on exiting DOM elements.  Optimize later
-	challengeSel.select("#challenge-puzzles").selectAll('div.game-tile div.tile')
-		.text(tile => tile.letter)
-		.attr('hint', tile => tile.hint)
 }
 
 const drawNewKeyboard = (keybaordSel) => {

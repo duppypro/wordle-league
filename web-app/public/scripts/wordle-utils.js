@@ -116,7 +116,7 @@ class WordleChallenge {
 // 
 	constructor(possibleID) {
 		// make a default challenge object to be overwritten by values coded in possibleID
-		this.numPuzzles = 5
+		this.numPuzzles = 3 //5
 		this.sharedStartWordMode = false // this mode does not make sense until I code hard mode and harder mode
 
 		// pick indexes for the random words
@@ -156,7 +156,7 @@ class WordleChallenge {
 				startWord: this.startWordByID[i],
 				allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
 					(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
-						(x, i) => ({letter: '', hint: 'empty'})
+						(x, i) => ({letter: '', hint: 'tbd'})
 					)
 				),
 				maxGuesses: undefined,
