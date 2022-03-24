@@ -2,8 +2,8 @@
 // useful global functions specific to most wordle puzzle variations
 
 const allValidLetters = "abcdefghijklmnopqrstuvwxyz".split('')
-const possibleSolutionWords = Array.from(WORDLE_SET_FROM.OG.possibleSolutionWords)
-const allValidWords = WORDLE_SET_FROM.OG.possibleSolutionWords.concat(WORDLE_SET_FROM.OG.otherValidWords)
+const possibleSolutionWords = Array.from(WORDum_SET.possibleSolutionWords)
+const allValidWords = WORDum_SET.possibleSolutionWords.concat(WORDum_SET.otherValidWords)
 
 // I want IDs to be short so they are easier to share
 // So only pick 64 offset patterns and start them on random indexes
@@ -112,7 +112,7 @@ const decodeChallengeID = (possibleID) => {
 	return c
 }
 
-class WordleChallenge {
+class WordumChallenge {
 // 
 	constructor(possibleID) {
 		// make a default challenge object to be overwritten by values coded in possibleID
@@ -150,7 +150,7 @@ class WordleChallenge {
 
 		this.puzzles = new Array(this.numPuzzles).fill(true).map((x_, i) => {
 			// init new single puzzle state
-			// TODO: refactor this into new WordlePuzzle(ID)
+			// TODO: refactor this into new WordumPuzzle(ID)
 			const puzzle = {
 				ID: i, // ID puzzles as 0..(numPuzzles-1)
 				startWord: this.startWordByID[i],

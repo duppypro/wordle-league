@@ -1,5 +1,5 @@
 'use strict'
-// helper functions that aren't necessarily wordle specific
+// helper functions that aren't necessarily GUESSum WORDum specific
 
 const randomIndex = length => Math.floor(Math.random() * length) // return integer between 0, length-1 inclusive
 
