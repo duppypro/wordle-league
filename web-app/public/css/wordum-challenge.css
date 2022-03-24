@@ -265,29 +265,29 @@
 		}
 	} */
 
-	.tile[hint='empty'] {
+	.tile[clue='empty'] {
 		border: 2px solid var(--color-invalid); /* empty not used anymore */
 	}
 
-	.tile[hint='tbd'] {
+	.tile[clue='tbd'] {
 		background-color: var(--key-bg);
 		border: 2px solid var(--color-tone-2);
 		color: var(--color-tone-1);
 	}
 
-	.tile[hint='correct'] {
+	.tile[clue='correct'] {
 		background-color: var(--color-correct);
 	}
 
-	.tile[hint='present'] {
+	.tile[clue='present'] {
 		background-color: var(--color-present);
 	}
 
-	.tile[hint='absent'] {
+	.tile[clue='absent'] {
 		background-color: var(--color-absent);
 	}
 
-	.tile[hint='invalid'] {
+	.tile[clue='invalid'] {
 		background-color: var(--color-invalid);
 	}
 
@@ -374,24 +374,24 @@
 		flex: 2;
 	}
 
-	#challenge-keyboard button[hint='tbd'] {
+	#challenge-keyboard button[clue='tbd'] {
 		background-color: var(--key-bg);
 		color: var(--key-evaluated-text-color);
 	}
 
-	#challenge-keyboard button[hint='correct'] {
+	#challenge-keyboard button[clue='correct'] {
 		background-color: var(--key-bg-correct);
 		color: var(--key-evaluated-text-color);
 		border: 0;
 	}
 
-	#challenge-keyboard button[hint='present'] {
+	#challenge-keyboard button[clue='present'] {
 		background-color: var(--key-bg-present);
 		color: var(--key-evaluated-text-color);
 		border: 0;
 	}
 
-	#challenge-keyboard button[hint='absent'] {
+	#challenge-keyboard button[clue='absent'] {
 		background-color: var(--key-bg-absent);
 		color: var(--key-evaluated-text-color);
 		border: 0;

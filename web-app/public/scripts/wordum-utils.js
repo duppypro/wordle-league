@@ -137,7 +137,7 @@ class WordumChallenge {
 
 		// now construct rest of challenge object derivable from existing entries
 		this.nowPuzzleID = 0
-		this.keyboardHints = {}
+		this.keyboardClues = {}
 
 		this.solutionOffsets = randomOffsets[this.solutionOffsetsIndex].slice(0,this.numPuzzles-1)
 			.map((n) => this.solutionStartIndex + n)
@@ -155,8 +155,8 @@ class WordumChallenge {
 				ID: i, // ID puzzles as 0..(numPuzzles-1)
 				startWord: this.startWordByID[i],
 				allGuesses: new Array(6).fill(true).map( // 6 rows/guesses
-					(x,i) => new Array(5).fill(true).map( // of 5 letter/hint objects in each row/guess
-						(x, i) => ({letter: '', hint: 'tbd'})
+					(x,i) => new Array(5).fill(true).map( // of 5 letter/clue objects in each row/guess
+						(x, i) => ({letter: '', clue: 'tbd'})
 					)
 				),
 				maxGuesses: undefined,
@@ -171,7 +171,7 @@ class WordumChallenge {
 			if (this.sharedStartWordMode) {
 				// put a random start word as the first guess
 				puzzle.allGuesses = [
-					new Array(5).fill(true).map((x, i) => ({letter: puzzle.startWord[i], hint: 'tbd'})),
+					new Array(5).fill(true).map((x, i) => ({letter: puzzle.startWord[i], clue: 'tbd'})),
 					...puzzle.allGuesses,
 				]
 				// get an extras guess when forced to use a shared start word
@@ -184,49 +184,49 @@ class WordumChallenge {
 	}
 }
 
-const assignHint = (tiles, hint) => {
-	// set the hint property of all tiles to hint parameter
-	tiles.forEach(tile => tile.hint = hint)
+const assignClue = (tiles, clue) => {
+	// set the clue property of all tiles to clue parameter
+	tiles.forEach(tile => tile.clue = clue)
 }
 
-const assignHintsFromSolution = (tiles, solution, kbdHints) => {
-// primary purpose is to assign hint values
+const assignCluesFromSolution = (tiles, solution, kbdClues) => {
+// primary purpose is to assign clue values
 // also returns false if the guess was invalid 
 
 	// first check if its a valid word
 	const guessAsString = tiles.map((tile) => tile.letter).join('')
 	if (allValidWords.indexOf(guessAsString) == -1) {
-		assignHint(tiles, 'invalid')
+		assignClue(tiles, 'invalid')
 		return false
-		// return false indicates it was hinted as invalid and puzzle should not advance to next guess/row
+		// return false indicates it was clueed as invalid and puzzle should not advance to next guess/row
 	}
 
 	const testSolution = solution.slice().split('') // make a copy as an array of letters so they can be marked/removed
 	// we don't want to mark or modify the original solution
-	// mark correct letters first and mark/remove them from solution so double letter hinting works
+	// mark correct letters first and mark/remove them from solution so double letter clueing works
 	tiles.forEach((tile, i) => {
 		if (tile.letter == testSolution[i]) { // if in the same position
-			tile.hint = 'correct'
-			kbdHints[tile.letter] = 'correct'
+			tile.clue = 'correct'
+			kbdClues[tile.letter] = 'correct'
 			testSolution[i] = '.' // mark/remove this to make double letters work
 		}
 	})
 
-	// now assign absent and present and remove hinted presents as we go so they only get marked again if there is more than one
+	// now assign absent and present and remove clueed presents as we go so they only get marked again if there is more than one
 	tiles.forEach((tile, i) => {
-		if (tile.hint == 'empty') {console.error(`hint type 'empty' is DEPRECATED`)}
-		if (!tile.hint || tile.hint == 'tbd') { // only if it hasn't been marked yet
+		if (tile.clue == 'empty') {console.error(`clue type 'empty' is DEPRECATED`)}
+		if (!tile.clue || tile.clue == 'tbd') { // only if it hasn't been marked yet
 			const pos = testSolution.indexOf(tile.letter)
 			if (pos != -1) { // if found - prioritize correct over present over absent
-				tile.hint = 'present'
+				tile.clue = 'present'
 				testSolution[pos] = '.' // mark/remove this to make double letters work
-				if (kbdHints[tile.letter] != 'correct') {
-					kbdHints[tile.letter] = 'present'
+				if (kbdClues[tile.letter] != 'correct') {
+					kbdClues[tile.letter] = 'present'
 				}
 			} else {
-				tile.hint = 'absent'
-				if (kbdHints[tile.letter] != 'correct' && kbdHints[tile.letter] != 'present') {
-					kbdHints[tile.letter] = 'absent'
+				tile.clue = 'absent'
+				if (kbdClues[tile.letter] != 'correct' && kbdClues[tile.letter] != 'present') {
+					kbdClues[tile.letter] = 'absent'
 				}
 			}
 		}
@@ -252,10 +252,10 @@ const updateChallengeFromKey = (challenge, key_) => {
 		letterCol: col,
 	} = puzzle.cursorPos
 	const tiles = puzzle.allGuesses[row]
-	// a tile is a letter+hint object. plural tiles is one word/guess of 5 tiles 
+	// a tile is a letter+clue object. plural tiles is one word/guess of 5 tiles 
 	if (ID < numPuzzles) { // if challenge isn't finished with all puzzles
 		if (col == tiles.length && key == 'enter') { // only process Enter key at end of row
-			const valid = assignHintsFromSolution(tiles, puzzle.solution, challenge.keyboardHints)
+			const valid = assignCluesFromSolution(tiles, puzzle.solution, challenge.keyboardClues)
 			const guessAsString = tiles.map(t => t.letter).join('')
 			if (guessAsString == puzzle.solution) {
 				puzzle.finished = true // does anything read this?
@@ -271,12 +271,12 @@ const updateChallengeFromKey = (challenge, key_) => {
 				// win animation here, for now it just fills the remaining rows and nothing happens if no rows left
 				let winRow = row
 				while (winRow < puzzle.maxGuesses) {
-					assignHint(puzzle.allGuesses[winRow], 'correct')
+					assignClue(puzzle.allGuesses[winRow], 'correct')
 					winRow++
 				}
-				// reset keyboard hints
-				challenge.keyboardHints = {}
-				// allValidLetters.split('').forEach(letter => challenge.keyboardHints[letter] = 'tbd' )
+				// reset keyboard clues
+				challenge.keyboardClues = {}
+				// allValidLetters.split('').forEach(letter => challenge.keyboardClues[letter] = 'tbd' )
 			} else if (valid) { // normal case
 				if (row < puzzle.maxGuesses - 1) {
 					row++
@@ -292,14 +292,14 @@ const updateChallengeFromKey = (challenge, key_) => {
 							letterCol: sharedStartWordMode ? 5 : 0,
 						}
 					}
-					// reset keyboard hints
-					challenge.keyboardHints = {}
+					// reset keyboard clues
+					challenge.keyboardClues = {}
 				}
 			} // ignore 'Enter' if guess is not valid, wait for 'Backspace'
 		} else if (col > 0 && (key == 'backspace' || key == '←')) {
 			col--
 			tiles[col].letter = ''
-			assignHint(tiles, 'tbd') // overkill = clears the invalid guess case
+			assignClue(tiles, 'tbd') // overkill = clears the invalid guess case
 		} else if (col < tiles.length
 				&& allValidLetters.indexOf(key.toLowerCase()) != -1) {
 			tiles[col].letter = key

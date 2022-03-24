@@ -77,7 +77,7 @@ const redrawChallengeScore = (challengeScoreSel, challenge, column = 0) => {
 			puzzle.miniScoreText[column] = ''
 			puzzle.allGuesses.forEach((guess, row) => {
 				puzzle.miniScoreText[column] = puzzle.miniScoreText[column] + guess.map((tile, i) => (
-					emojiFromHint(
+					emojiFromClue(
 						(
 							(puzzle.ID < challenge.nowPuzzleID)
 								||
@@ -85,7 +85,7 @@ const redrawChallengeScore = (challengeScoreSel, challenge, column = 0) => {
 								||
 							(puzzle.ID == challenge.nowPuzzleID && row == puzzle.cursorPos.guessRow-1 && i <= column)
 						)
-						? tile.hint // if time to reveal
+						? tile.clue // if time to reveal
 						: 'tbd' // if not time to reveal yet
 					)
 				)).join('')
@@ -174,7 +174,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 					enter => enter // TODO: move this to drawNewPuzzles()
 						.append('div').attr('class', 'game-tile') // TODO: does tile really need the game-tile container?
 						.append('div').attr('class', 'tile')
-						.attr('hint', 'tbd'),
+						.attr('clue', 'tbd'),
 					old => old,
 					exit => exit.remove(),
 				)
@@ -183,7 +183,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 					return d3.select(this).text() != tile.letter // if letter needs changing
 				})
 					.text(tile => tile.letter)
-					.attr('hint', tile => tile.hint)
+					.attr('clue', tile => tile.clue)
 					.transition()
 					.duration(beat/4)
 					.style('transform', 'scale(0.75)')
@@ -194,7 +194,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 				.each(function (guessRow) {
 					d3.select(this).selectAll('div.game-tile div.tile')
 					.filter(function(tile, i, nodes) {
-						return (d3.select(this).attr('hint') != tile.hint) // if hint is changing
+						return (d3.select(this).attr('clue') != tile.clue) // if clue is changing
 					})
 					.text(tile => tile.letter)
 					.each((tile, i) => {
@@ -203,17 +203,17 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 						redrawChallengeScore(d3.select('#challenge-score'), challenge, i)
 					})
 					.transition()
-						.duration((tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 0 : (beat/5))
-						.style('transform', (tile, i) => (tile.hint == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
+						.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
+						.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
 						.delay((tile, i, nodes) => (
-							((tile.hint == 'invalid') || nodes[i].getAttribute('hint') == 'invalid')
+							((tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
 								? 0
 								: i * (beat/5 + beat/5))
 						)
 					.transition()
-						.duration((tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 0 : (beat/5))
-						.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
-						.attr('hint', tile => tile.hint)
+						.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
+						.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
+						.attr('clue', tile => tile.clue)
 			})
 	})
 
@@ -228,7 +228,7 @@ const drawNewKeyboard = (keybaordSel) => {
 	keys = Array.from("qwertyuiop")
 	selRow = sel.append('div').attr('class', 'row')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('clue', 'tbd').attr('click-action', key).text(key)
 	})
 
 	// middle row ASDFGHJKL
@@ -237,7 +237,7 @@ const drawNewKeyboard = (keybaordSel) => {
 	selRow.append('div')
 		.attr('class', 'half')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('clue', 'tbd').attr('click-action', key).text(key)
 	})
 	selRow.append('div')
 		.attr('class', 'half')
@@ -249,7 +249,7 @@ const drawNewKeyboard = (keybaordSel) => {
 		.attr('class', 'one-and-a-half').attr('click-action', '←').text('←')
 		.style('font-size', '18px')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('clue', 'tbd').attr('click-action', key).text(key)
 	})
 	selRow.append('button')
 		.attr('class', 'one-and-a-half').attr('click-action', 'Enter').text('Enter')
@@ -264,7 +264,7 @@ const redrawKeyboard = (keybaordSel, challenge, filterKey = '*', index = 0) => {
 			d3.select(this)
 				.transition()
 				.delay(index * (beat/5 + beat/5) + beat/5 + beat/5)
-				.attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
+				.attr('clue', challenge.keyboardClues[this.innerText.toLowerCase()])
 		})
 }
 
@@ -274,7 +274,7 @@ const leftPositionFromID = (ID) => {
 	// TODO: remove above CONSTRAINT
 }
 
-const emojiFromHint = (hint) => {
+const emojiFromClue = (clue) => {
 	const emoji = {
 		correct: '🟩',
 		present: '🟨',
@@ -287,6 +287,6 @@ const emojiFromHint = (hint) => {
 		gear: '⚙',
 		chart: '📊',
 		clipboard: '📋',
-	}[hint || 'empty'] || '&nbsp;'
+	}[clue || 'empty'] || '&nbsp;'
 	return emoji
 }
