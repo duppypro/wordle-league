@@ -271,7 +271,7 @@
 
 	.tile[hint='tbd'] {
 		background-color: var(--key-bg);
-		border: 2px solid var(--tile-text-color);
+		border: 2px solid var(--color-tone-2);
 		color: var(--color-tone-1);
 	}
 

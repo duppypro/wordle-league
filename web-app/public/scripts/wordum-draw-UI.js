@@ -12,7 +12,7 @@ const drawNewGame = (gameSel, challenge) => {
 		)
 
 	// Create challenge container
-	gameSel.append('div').attr('id','challenge')
+	gameSel.append('div').attr('id', 'challenge')
 
 	// Create Challenge UI elements
 	drawNewChallenge(gameSel.select('#challenge'), challenge)
@@ -28,9 +28,9 @@ const drawNewChallenge = (challengeSel, challenge) => {
 	// calls redrawChallenge() when done
 
 	// Create challenge board
-	challengeSel.append('div').attr('id','challenge-score')
-	challengeSel.append('div').attr('id','challenge-puzzles')
-	challengeSel.append('div').attr('id','challenge-keyboard')
+	challengeSel.append('div').attr('id', 'challenge-score')
+	challengeSel.append('div').attr('id', 'challenge-puzzles')
+	challengeSel.append('div').attr('id', 'challenge-keyboard')
 
 	drawNewChallengeScore(challengeSel.select('#challenge-score'), challenge)
 
@@ -41,13 +41,13 @@ const drawNewChallenge = (challengeSel, challenge) => {
 
 const redrawChallenge = (challengeSel, challenge) => {
 	// Update progress and final score
-	redrawChallengeScore(challengeSel.select('#challenge-score'), challenge)
+	// only trigger from redrawPuzzles() redrawChallengeScore(challengeSel.select('#challenge-score'), challenge)
 	
 	// update all the puzzles in this challenge
 	redrawPuzzles(challengeSel.select('#challenge-puzzles'), challenge)
 
 	// update keyboard
-	redrawKeyboard(challengeSel.select('#challenge-keyboard'), challenge)
+	// only trigger from redrawPuzzles() redrawKeyboard(challengeSel.select('#challenge-keyboard'), challenge)
 }
 
 const drawNewChallengeScore = (challengeScoreSel, challenge) => {
@@ -62,34 +62,48 @@ const drawNewChallengeScore = (challengeScoreSel, challenge) => {
 			old => old,
 			exit => exit.remove(),
 		)
+
+	redrawChallengeScore (challengeScoreSel, challenge)
 }
 
-const redrawChallengeScore = (challengeScoreSel, challenge) => {
+const redrawChallengeScore = (challengeScoreSel, challenge, column = 0) => {
 	//
 	challengeScoreSel.selectAll('div.mini-score')
 		.data(challenge.puzzles, puzzle => puzzle.ID) // make a mini-score for each puzzle in this challenge
-		.filter(puzzle => !puzzle.transitioning)
 		.each(function(puzzle) {
-			puzzle.transitioning = true;
-			puzzle.miniScoreText = ''
-			puzzle.allGuesses.forEach((guess) => {
-				puzzle.miniScoreText = puzzle.miniScoreText + guess.map((tile) => emojiFromHint(tile.hint)).join('')
-				puzzle.miniScoreText = puzzle.miniScoreText + '<br>'
+			if (!puzzle.miniScoreText) {
+				puzzle.miniScoreText = []
+			}
+			puzzle.miniScoreText[column] = ''
+			puzzle.allGuesses.forEach((guess, row) => {
+				puzzle.miniScoreText[column] = puzzle.miniScoreText[column] + guess.map((tile, i) => (
+					emojiFromHint(
+						(
+							(puzzle.ID < challenge.nowPuzzleID)
+								||
+							(puzzle.ID == challenge.nowPuzzleID && row < puzzle.cursorPos.guessRow-1)
+								||
+							(puzzle.ID == challenge.nowPuzzleID && row == puzzle.cursorPos.guessRow-1 && i <= column)
+						)
+						? tile.hint // if time to reveal
+						: 'tbd' // if not time to reveal yet
+					)
+				)).join('')
+				puzzle.miniScoreText[column] = puzzle.miniScoreText[column] + '<br>'
 			})
 		})
-		.transition() // Why does this not work here and it works in redrawKeyboard()????
+		.transition()
 		.delay((puzzle) => {
 			if (puzzle.notFirstTime) {
-				return (4 * (beat/5+beat/5) + beat/5 + beat/5) // delay until end of letter reveal
+				return (column * (beat/5+beat/5) + beat/5) // delay until end of letter reveal
 				// TODO: improve
 			} else {
 				puzzle.notFirstTime = true
 				return 0 // don't delay draw on first call
 			}
 		})
-		.on('end', function(puzzle) {
-			d3.select(this).html(puzzle.miniScoreText)
-			puzzle.transitioning = false;
+		.on('end', function(puzzle, i) {
+			d3.select(this).html(puzzle.miniScoreText[column])
 		})
 }
 
@@ -136,9 +150,9 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
 		.delay(() => ((nowPuzzleID > 0) ? (beat/2 + 4*beat) : 0))
 
-	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(),update(),exit())
+	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(), update(), exit())
 	//       except update only includes elements before the enter
-	//       so the pattern is more accurately: .join(enter(),old(),exit()).update()
+	//       so the pattern is more accurately: .join(enter(), old(), exit()).update()
 
 	// for each puzzle add/update all the guess rows
 	puzzlesSel.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
@@ -147,8 +161,8 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join(
 				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
-					.append('div').attr('class','game-row')
-					.append('div').attr('class','row'),
+					.append('div').attr('class', 'game-row')
+					.append('div').attr('class', 'row'),
 				old => old, // this
 				exit => exit.remove(),
 				)
@@ -158,31 +172,36 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 				.data(guessRow)
 				.join(
 					enter => enter // TODO: move this to drawNewPuzzles()
-						.append('div').attr('class','game-tile')
-						.append('div').attr('class','tile')
-						.attr('hint','tbd'),
+						.append('div').attr('class', 'game-tile') // TODO: does tile really need the game-tile container?
+						.append('div').attr('class', 'tile')
+						.attr('hint', 'tbd'),
 					old => old,
 					exit => exit.remove(),
 				)
 				// update all here because .join() returns merge of enter() and old()
-				.filter(function(tile,i,nodes) {
+				.filter(function(tile, i, nodes) {
 					return d3.select(this).text() != tile.letter // if letter needs changing
 				})
 					.text(tile => tile.letter)
 					.attr('hint', tile => tile.hint)
 					.transition()
-						.duration(beat/4)
-						.style('transform','scale(0.75)')
+					.duration(beat/4)
+					.style('transform', 'scale(0.75)')
 					.transition()
-						.duration(beat/4)
-						.style('transform','scale(1)')
-			})
-			.each(function (guessRow) {
-				d3.select(this).selectAll('div.game-tile div.tile')
-				.filter(function(tile,i,nodes) {
-					return (d3.select(this).attr('hint') != tile.hint) // if hint is changing
+					.duration(beat/4)
+					.style('transform', 'scale(1)')
 				})
+				.each(function (guessRow) {
+					d3.select(this).selectAll('div.game-tile div.tile')
+					.filter(function(tile, i, nodes) {
+						return (d3.select(this).attr('hint') != tile.hint) // if hint is changing
+					})
 					.text(tile => tile.letter)
+					.each((tile, i) => {
+						redrawKeyboard(d3.select('#challenge-keyboard'), challenge, tile.letter, i)
+						// TODO: remove use of the "global" fetching of keyboardSel with d3.select('#challenge-keyboard')
+						redrawChallengeScore(d3.select('#challenge-score'), challenge, i)
+					})
 					.transition()
 						.duration((tile, i, nodes) => (nodes[i].getAttribute('hint') == 'invalid') ? 0 : (beat/5))
 						.style('transform', (tile, i) => (tile.hint == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
@@ -201,48 +220,52 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 }
 
 const drawNewKeyboard = (keybaordSel) => {
-	const sel = keybaordSel.append('div').attr('id','keyboard')
+	const sel = keybaordSel.append('div').attr('id', 'keyboard')
 	let keys
 	let selRow
 
 	// top row QWERTYUIOP
 	keys = Array.from("qwertyuiop")
-	selRow = sel.append('div').attr('class','row')
+	selRow = sel.append('div').attr('class', 'row')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint','tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
 	})
 
 	// middle row ASDFGHJKL
 	keys = Array.from("asdfghjkl")
-	selRow = sel.append('div').attr('class','row')
+	selRow = sel.append('div').attr('class', 'row')
 	selRow.append('div')
-		.attr('class','half')
+		.attr('class', 'half')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint','tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
 	})
 	selRow.append('div')
-		.attr('class','half')
+		.attr('class', 'half')
 
 	// bottom row Enter-ZXCVBNM-Backspace
 	keys = Array.from("zxvcbnm")
-	selRow = sel.append('div').attr('class','row')
+	selRow = sel.append('div').attr('class', 'row')
 	selRow.append('button')
-		.attr('class','one-and-a-half').attr('click-action', '←').text('←')
-		.style('font-size','18px')
+		.attr('class', 'one-and-a-half').attr('click-action', '←').text('←')
+		.style('font-size', '18px')
 	keys.forEach((key) => {
-		selRow.append('button').attr('hint','tbd').attr('click-action', key).text(key)
+		selRow.append('button').attr('hint', 'tbd').attr('click-action', key).text(key)
 	})
 	selRow.append('button')
-		.attr('class','one-and-a-half').attr('click-action', 'Enter').text('Enter')
+		.attr('class', 'one-and-a-half').attr('click-action', 'Enter').text('Enter')
 }
 
-const redrawKeyboard = (keybaordSel, challenge) => {
-	keybaordSel.selectAll('button').each(function () {
-		d3.select(this)
-			.transition()
-			.delay(5 * (beat/5+beat/5)) // TODO: reveal one at a time as letters reveal
-			.attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
-	})
+const redrawKeyboard = (keybaordSel, challenge, filterKey = '*', index = 0) => {
+	keybaordSel.selectAll('button')
+		.filter(function(){
+			return filterKey == '*' || d3.select(this).text() == filterKey
+		})
+		.each(function () {
+			d3.select(this)
+				.transition()
+				.delay(index * (beat/5 + beat/5) + beat/5 + beat/5)
+				.attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
+		})
 }
 
 const leftPositionFromID = (ID) => {
