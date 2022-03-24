@@ -1,5 +1,5 @@
 'use strict'
-// Wordum League
+// GUESSum WORDum League
 // play Wordum competitevly, get ranked, share/flex your Wordum rank
 
 //////////////////////////// LEAGUE VIEW /////////////////////
@@ -14,8 +14,7 @@ let userID = 'this-session' // no user login yet
 // retrieve challenge ID from URL
 let urlParams = new URLSearchParams(window.location.search)
 const challengeIDFromURL = urlParams.get('ID')
-
-// create new challenge
+// create new challenge, possibly from the ID in the URL
 const challenge = new WordumChallenge(challengeIDFromURL)
 // if this is a new Challenge, save it to the address bar
 if (challenge.ID != challengeIDFromURL) { // if challenge was created with new ID
@@ -25,9 +24,11 @@ if (challenge.ID != challengeIDFromURL) { // if challenge was created with new I
 }
 
 // draw the initial state
-// names ending in `Sel` are D3js selection objects
+// variables ending in `Sel` are D3js selection objects
 const gameSel = d3.select('#guessum-wordum-app')
 drawNewGame(gameSel, challenge) // TODO: make this a class, use new WordumUI or new WordumDOM?a  
+// we use event driven redraw so need to prime the first redraw
+redrawGame(gameSel, challenge)
 
 // define event listeners
 const updateGameOnKeydown = (e) => {

@@ -119,6 +119,10 @@
 		display: flex;		
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
+		-moz-user-select: all;
+		-webkit-user-select: all;
+		-ms-user-select: all;
+		user-select: all;
 	}
 	
 	header .title {
@@ -127,7 +131,6 @@
 		font-size: larger;
 		line-height: 90%;
 		text-align: bottom;
-		pointer-events: none;
 	}
 
 	header .uid {
@@ -159,7 +162,10 @@
 		letter-spacing: 0.01rem;
 		text-align: left;
 		right: 0;
-		pointer-events: none;
+		-moz-user-select: all;
+		-webkit-user-select: all;
+		-ms-user-select: all;
+		user-select: all;
 	}
 
 	.menu-left {
@@ -184,6 +190,10 @@
 		line-height: 13px;
 		letter-spacing: -2px;
 		text-align: center;
+		-moz-user-select: all;
+		-webkit-user-select: all;
+		-ms-user-select: all;
+		user-select: all;
 	}
 
 	.puzzle-container {

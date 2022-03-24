@@ -1,7 +1,8 @@
 'use strict'
 ///////////////////////// WORDum DRAW UI FUNCTIONS //////////////////
-const beat = 666 // 333 // for animations speed, units are in msec
+const beat = (60 * 1000) / 90 // 90bpm for animations speed, units are in msec
 
+// variables ending in `Sel` are D3js selection objects
 const drawNewGame = (gameSel, challenge) => {
 	// Create Title and game unique ID
 	gameSel.append('header')
@@ -10,13 +11,11 @@ const drawNewGame = (gameSel, challenge) => {
 			+ `<div class='uid'>ID=${challenge.ID}</div>`
 		)
 
-	// Create challenge board
+	// Create challenge container
 	gameSel.append('div').attr('id','challenge')
 
+	// Create Challenge UI elements
 	drawNewChallenge(gameSel.select('#challenge'), challenge)
-
-	// end with the first redraw
-	redrawGame(gameSel, challenge)
 }
 
 const redrawGame = (gameSel, challenge) => {
@@ -72,6 +71,8 @@ const redrawChallengeScore = (challengeScoreSel, challenge) => {
 
 	challengeScoreSel.selectAll('div.mini-score')
 		.data(puzzles, puzzle => puzzle.ID) // make a mini-score for each puzzle in this challenge
+		// .transition() // Why does this not work here and it works in redrawKeyboard()????
+		// .delay(5 * (beat/5+beat/5))
 		.html((puzzle) => {
 			let text = ''
 			puzzle.allGuesses.forEach((guess) => {
@@ -148,7 +149,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 				d3.select(this).selectAll('div.game-tile div.tile')
 				.data(guessRow)
 				.join(
-					enter => enter
+					enter => enter // TODO: move this to drawNewPuzzles()
 						.append('div').attr('class','game-tile')
 						.append('div').attr('class','tile')
 						.attr('hint','tbd'),
@@ -157,7 +158,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 				)
 				// update all here because .join() returns merge of enter() and old()
 				.filter(function(tile,i,nodes) {
-					return d3.select(this).text() != tile.letter // if letter is changing
+					return d3.select(this).text() != tile.letter // if letter needs changing
 				})
 					.text(tile => tile.letter)
 					.attr('hint', tile => tile.hint)
@@ -229,7 +230,10 @@ const drawNewKeyboard = (keybaordSel) => {
 
 const redrawKeyboard = (keybaordSel, challenge) => {
 	keybaordSel.selectAll('button').each(function () {
-		d3.select(this).attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
+		d3.select(this)
+			.transition()
+			.delay(5 * (beat/5+beat/5))
+			.attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
 	})
 }
 
@@ -250,6 +254,6 @@ const emojiFromHint = (hint) => {
 		gear: '⚙',
 		chart: '📊',
 		clipboard: '📋',
-	}[hint] || '&nbsp;'
+	}[hint || 'empty'] || '&nbsp;'
 	return emoji
 }
