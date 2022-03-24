@@ -137,18 +137,23 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 	puzzlesSel.selectAll('.puzzle-container')
 	.data(puzzles, puzzle => puzzle.ID)
 	.filter(d => {
-		//only apply transitions if the target has changed
 		return d.targetPuzzleID != nowPuzzleID
 	})
 		.transition()
-			.each(d => {
+			.each(puzzle => {
 				// mark this element as on the way to its target new position
 				// so the transition does not get re-started on events
-				d.targetPuzzleID = nowPuzzleID
+				puzzle.targetPuzzleID = nowPuzzleID
 			})
-			.duration(1.5*beat)
+			.duration(1*beat)
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
 		.delay(() => ((nowPuzzleID > 0) ? (beat/2 + 4*beat) : 0))
+		.on('start', puzzle => {
+			// clear the keyboard
+			if (puzzle.ID == 0) { // but just once
+				redrawKeyboard(d3.select('#challenge-keyboard'), challenge, '*', 4)
+			}
+		})
 
 	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(), update(), exit())
 	//       except update only includes elements before the enter
