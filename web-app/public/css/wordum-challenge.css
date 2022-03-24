@@ -1,6 +1,3 @@
-	/* Fonts */
-	/**/
-	/* Global Styles & Colors */
 	:root {
 		--green: #6aaa64;
 		--darkendGreen: #538d4e;
@@ -11,7 +8,7 @@
 		--darkGray: #939598;
 		--white: #fff;
 		--black: #212121;
-		/* Colorblind colors */
+		/* high contrast */
 		--orange: #f5793a;
 		--blue: #85c0f9;
 		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -20,12 +17,9 @@
 		--score-height: 80px;
 		--keyboard-height: 152px;
 		--game-max-width: 375px;
-
-		/* icons */
-		/**/
 	}
 
-	/* Light theme colors */
+	/* too bright */
 	:root {
 		--color-tone-1: #000000;
 		--color-tone-2: #787c7e;
@@ -38,7 +32,7 @@
 		--opacity-50: rgba(255, 255, 255, 0.5);
 	}
 
-	/* Dark Theme Colors */
+	/* night mode */
 	.nightmode {
 		--color-tone-1: #ffffff;
 		--color-tone-2: #818384;
@@ -49,9 +43,6 @@
 		--color-tone-7: #121213;
 		--color-nav-hover: #2f2f31;
 		--opacity-50: rgba(0, 0, 0, 0.5);
-
-		/* dark mode icons */
-		/**/
 	}
 
 	/* Constant colors and colors derived from theme */
@@ -64,11 +55,11 @@
 		--color-present: var(--yellow);
 		--color-correct: var(--green);
 		--color-invalid: #941919;
-		--color-absent: var(--color-tone-2);
+		--color-absent: var(--color-tone-1);
 		--tile-text-color: var(--color-tone-7);
 		--key-text-color: var(--color-tone-1);
 		--key-evaluated-text-color: var(--color-tone-7);
-		--key-bg: var(--color-tone-4);
+		--key-bg: var(--color-tone-3);
 		--key-bg-present: var(--color-present);
 		--key-bg-correct: var(--color-correct);
 		--key-bg-absent: var(--color-absent);
@@ -78,12 +69,12 @@
 	.nightmode {
 		--color-present: var(--darkendYellow);
 		--color-correct: var(--darkendGreen);
-		--color-invalid: #3a0a0a;
-		--color-absent: var(--color-tone-4);
+		--color-invalid: #700000;
+		--color-absent: var(--color-tone-5);
 		--tile-text-color: var(--color-tone-1);
 		--key-text-color: var(--color-tone-1);
 		--key-evaluated-text-color: var(--color-tone-1);
-		--key-bg: var(--color-tone-2);
+		--key-bg: var(--color-tone-4);
 		--key-bg-present: var(--color-present);
 		--key-bg-correct: var(--color-correct);
 		--key-bg-absent: var(--color-absent);
@@ -104,7 +95,7 @@
 		width: 100vw
 	}
 
-	body {
+	#guessum-wordum-app {
 		height: 100%;
 		background-color: var(--color-background);
 		margin: 0;
@@ -112,8 +103,6 @@
 		/* Prevent scrollbar appearing on page transition */
 		overflow: hidden-y;
 	}
-
-	/* below this is style from game-app shadow root */
 
 	#challenge {
 		max-width: var(--game-max-width);
@@ -154,14 +143,13 @@
 		overflow: hidden;
 		position: relative;
 		width: var(--game-max-width);
-		height: calc(0.5rem + var(--game-max-width)*.736*6/5);
-		padding: 1rem 0px 0px 0px;
+		height: calc(1rem + var(--game-max-width)*.736*6/5);
 	}
 
 	#challenge-score {
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
-		grid-gap: 0px;
+		gap: 0px;
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
 		font-family: inherit;
@@ -213,7 +201,7 @@
 	.puzzle {
 		display: grid;
 		grid-template-rows: repeat(6, 1fr);
-		grid-gap: 5px;
+		gap: 5px;
 		padding: 0px 0px 10px 0px;
 		box-sizing: border-box;
 		color: var(--color-tone-1);
@@ -233,10 +221,10 @@
 		display: block;
 	}
 
-	.row {
+	.game-row .row {
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
-		grid-gap: 5px;
+		gap: 5px;
 	}
 
 	/* below from game-tile shadow root */
@@ -279,8 +267,8 @@
 	}
 
 	.tile[hint='tbd'] {
-		background-color: var(--color-tone-7);
-		border: 2px solid var(--color-tone-3);
+		background-color: var(--key-bg);
+		border: 2px solid var(--tile-text-color);
 		color: var(--color-tone-1);
 	}
 
@@ -315,18 +303,19 @@
 	/* Below is game-keyboard shadow style */
 
 	#challenge-keyboard {
-		height: var(--keyboard-height);
+		user-select: none;
 	}
 
 	#keyboard {
-		margin: 0 0px;
-		user-select: none;
+		display: grid;
+		gap: 2px;
 	}
 
 	#challenge-keyboard .row {
 		display: flex;
 		width: 100%;
-		margin: 0 auto 4px;
+		/* margin: 0 auto 2px; */
+		gap: 2px;
 		/* https://stackoverflow.com/questions/46167604/ios-html-disable-double-tap-to-zoom */
 		touch-action: manipulation;
 	}
@@ -334,14 +323,15 @@
 	#challenge-keyboard button {
 		font-family: inherit;
 		font-weight: bold;
-		border: 0;
+		border: 1px solid;
 		padding: 0;
-		margin: 0 2px 0 0;
+		margin: 0;
 		height: 48px;
-		border-radius: 4px;
+		border-radius: 8px;
 		cursor: pointer;
 		user-select: none;
 		background-color: var(--key-bg);
+		/* border-color: var(color); */
 		color: var(--key-text-color);
 		flex: 1;
 		display: flex;
@@ -389,16 +379,19 @@
 	#challenge-keyboard button[hint='correct'] {
 		background-color: var(--key-bg-correct);
 		color: var(--key-evaluated-text-color);
+		border: 0;
 	}
 
 	#challenge-keyboard button[hint='present'] {
 		background-color: var(--key-bg-present);
 		color: var(--key-evaluated-text-color);
+		border: 0;
 	}
 
 	#challenge-keyboard button[hint='absent'] {
 		background-color: var(--key-bg-absent);
 		color: var(--key-evaluated-text-color);
+		border: 0;
 	}
 
 	/* @media (min-width: 415px) {
