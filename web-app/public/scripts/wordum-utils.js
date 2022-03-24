@@ -214,7 +214,8 @@ const assignHintsFromSolution = (tiles, solution, kbdHints) => {
 
 	// now assign absent and present and remove hinted presents as we go so they only get marked again if there is more than one
 	tiles.forEach((tile, i) => {
-		if (tile.hint == 'tbd' || tile.hint == 'empty') { // only if it hasn't been marked yet
+		if (tile.hint == 'empty') {console.error(`hint type 'empty' is DEPRECATED`)}
+		if (!tile.hint || tile.hint == 'tbd') { // only if it hasn't been marked yet
 			const pos = testSolution.indexOf(tile.letter)
 			if (pos != -1) { // if found - prioritize correct over present over absent
 				tile.hint = 'present'

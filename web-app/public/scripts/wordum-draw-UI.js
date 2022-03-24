@@ -65,21 +65,31 @@ const drawNewChallengeScore = (challengeScoreSel, challenge) => {
 }
 
 const redrawChallengeScore = (challengeScoreSel, challenge) => {
-	let {
-		puzzles
-	} = challenge
-
+	//
 	challengeScoreSel.selectAll('div.mini-score')
-		.data(puzzles, puzzle => puzzle.ID) // make a mini-score for each puzzle in this challenge
-		// .transition() // Why does this not work here and it works in redrawKeyboard()????
-		// .delay(5 * (beat/5+beat/5))
-		.html((puzzle) => {
-			let text = ''
+		.data(challenge.puzzles, puzzle => puzzle.ID) // make a mini-score for each puzzle in this challenge
+		.filter(puzzle => !puzzle.transitioning)
+		.each(function(puzzle) {
+			puzzle.transitioning = true;
+			puzzle.miniScoreText = ''
 			puzzle.allGuesses.forEach((guess) => {
-				text = text + guess.map((tile) => emojiFromHint(tile.hint)).join('')
-				text = text + '<br>'
+				puzzle.miniScoreText = puzzle.miniScoreText + guess.map((tile) => emojiFromHint(tile.hint)).join('')
+				puzzle.miniScoreText = puzzle.miniScoreText + '<br>'
 			})
-			return text
+		})
+		.transition() // Why does this not work here and it works in redrawKeyboard()????
+		.delay((puzzle) => {
+			if (puzzle.notFirstTime) {
+				return (4 * (beat/5+beat/5) + beat/5 + beat/5) // delay until end of letter reveal
+				// TODO: improve
+			} else {
+				puzzle.notFirstTime = true
+				return 0 // don't delay draw on first call
+			}
+		})
+		.on('end', function(puzzle) {
+			d3.select(this).html(puzzle.miniScoreText)
+			puzzle.transitioning = false;
 		})
 }
 
@@ -92,18 +102,16 @@ const drawNewPuzzles = (puzzlesSel, challenge) => {
 	puzzlesSel.selectAll('div.puzzle-container')
 	.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
 	.join(
-		enter => {
-			const selContainer = enter.append('div').attr('class', 'puzzle-container')
-			selContainer.append('div').attr('class', 'puzzle')
-				.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
-			selContainer
-				.style('left', puzzle => leftPositionFromID(1 + puzzle.ID - nowPuzzleID))
-				.style('top', '0.5rem')
-			return selContainer
-		},
+		enter => enter.append('div').attr('class', 'puzzle-container')
+			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID + 1)) // + 1 makes this start off screen and slide in
+			.style('top', '0.5rem')
+			.append('div').attr('class', 'puzzle')
+				.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`),
 		old => old,
-		exit => exit,
+		exit => exit.remove(),
 	)
+	// CONSTRAINT: the enter function above does not return the correct element.
+	// If code is ever needed after the join, must make enter return the parent '.puzzle-container'
 }
 
 const redrawPuzzles = (puzzlesSel, challenge) => {
@@ -142,7 +150,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 					.append('div').attr('class','game-row')
 					.append('div').attr('class','row'),
 				old => old, // this
-				exit => exit,
+				exit => exit.remove(),
 				)
 			// now for all entered and old guess rows create letters
 			.each(function (guessRow) {
@@ -154,7 +162,7 @@ const redrawPuzzles = (puzzlesSel, challenge) => {
 						.append('div').attr('class','tile')
 						.attr('hint','tbd'),
 					old => old,
-					exit => exit,
+					exit => exit.remove(),
 				)
 				// update all here because .join() returns merge of enter() and old()
 				.filter(function(tile,i,nodes) {
@@ -232,13 +240,15 @@ const redrawKeyboard = (keybaordSel, challenge) => {
 	keybaordSel.selectAll('button').each(function () {
 		d3.select(this)
 			.transition()
-			.delay(5 * (beat/5+beat/5))
+			.delay(5 * (beat/5+beat/5)) // TODO: reveal one at a time as letters reveal
 			.attr('hint', challenge.keyboardHints[this.innerText.toLowerCase()])
 	})
 }
 
 const leftPositionFromID = (ID) => {
-	return `calc((var(--game-max-width) - var(--game-max-width)*.736)/2 + var(--game-max-width)*${ID})`
+	return `calc((var(--game-max-width) - var(--game-max-width)*.75)/2 + var(--game-max-width)*${ID})`
+	// CONSTRAINT: this 0.75 multiplier on width is also in the .css file and must match
+	// TODO: remove above CONSTRAINT
 }
 
 const emojiFromHint = (hint) => {
@@ -246,7 +256,7 @@ const emojiFromHint = (hint) => {
 		correct: '🟩',
 		present: '🟨',
 		absent: '⬛',
-		empty: '🔳',
+		// empty: '🔳', DEPRECATED
 		tbd: '🔳',
 		invalid: '🔳',
 		fail: '🟥',
