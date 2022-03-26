@@ -149,16 +149,9 @@ const redrawPuzzles = (challengeSel, drawn, challenge) => {
 	// for each puzzle add/update all the guess rows
 	puzzlesSel.selectAll('div.puzzle').each(function (puzzle) { // can't use => notation because we need 'this' to get set
 		//this is called for each div.puzzle DOM element
-		d3.select(this).selectAll('div.game-row')
+		d3.select(this).selectAll('div.row')
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
-			.join(
-				enter => enter // this is called once for every element in puzzle.allGuesses array that does not have a matching DOM yet
-					.append('div').attr('class', 'game-row')
-					.append('div').attr('class', 'row'),
-				old => old, // this
-				exit => exit.remove(),
-				)
-			// now for all entered and old guess rows create letters
+			.join('div').attr('class', 'row')
 			.each(function (guessRow) {
 				d3.select(this).selectAll('div.game-tile div.tile')
 				.data(guessRow)

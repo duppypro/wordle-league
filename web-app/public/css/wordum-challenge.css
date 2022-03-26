@@ -187,18 +187,7 @@
 		width: calc(var(--game-max-width) * .75);
 	}
 
-	button.icon {
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 0 4px;
-	}
-
-	.game-row {
-		display: block;
-	}
-
-	.game-row .row {
+	.puzzle .row {
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
 		gap: 5px;
@@ -294,12 +283,10 @@
 		border: 1px solid;
 		padding: 0;
 		margin: 0;
-		height: 48px;
+		height: 52px;
 		border-radius: 8px;
 		cursor: pointer;
-		/* user-select: none; */
 		background-color: var(--key-bg);
-		/* border-color: var(color); */
 		color: var(--key-text-color);
 		flex: 1;
 		display: flex;
