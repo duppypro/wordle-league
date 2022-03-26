@@ -145,6 +145,7 @@
 	}
 
 	#challenge-score {
+		height: var(--score-height);
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
 		gap: 0px;
@@ -193,11 +194,7 @@
 		gap: 5px;
 	}
 
-	.game-tile {
-		display: inline-block;
-	}
-
-	.tile {
+	.puzzle .tile {
 		width: 100%;
 		display: inline-flex;
 		justify-content: center;
@@ -211,7 +208,7 @@
 		text-transform: uppercase;
 	}
 
-	.tile::before {
+	.puzzle .tile::before {
 		content: '';
 		display: inline-block;
 		padding-bottom: 100%;

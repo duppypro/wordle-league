@@ -85,7 +85,6 @@ const redrawChallengeScore = (challengeSel, drawn, c) => {
 				puzzle.miniScoreText = puzzle.miniScoreText + '<br>'
 			})
 			drawn.clueRevealCol = (drawn.clueRevealCol + 1) % 5;
-			console.log(`clue reveal==${drawn.clueRevealCol}\n`, puzzle.miniScoreText.replace(/<br>/g,'\n'))
 		})
 		.transition()
 		.delay((puzzle, i) => {
@@ -118,6 +117,13 @@ const drawNewPuzzles = (challengeSel, challenge) => {
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID + 1))
 			.style('top', '0.5rem')
 			.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
+			.selectAll('div.row')
+			.data(puzzle => puzzle.allGuesses) // make a row element for each guessWord in this puzzle
+			.join('div').attr('class', 'row')
+				.selectAll('div.tile')
+				.data(guessRow => guessRow)
+				.join('div').attr('class', 'tile')
+					.attr('clue','tbd')
 }
 
 const redrawPuzzles = (challengeSel, drawn, challenge) => {
@@ -153,50 +159,41 @@ const redrawPuzzles = (challengeSel, drawn, challenge) => {
 			.data(puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join('div').attr('class', 'row')
 			.each(function (guessRow) {
-				d3.select(this).selectAll('div.game-tile div.tile')
+				d3.select(this).selectAll('div.tile')
 				.data(guessRow)
-				.join(
-					enter => enter // TODO: move this to drawNewPuzzles()
-						.append('div').attr('class', 'game-tile') // TODO: does tile really need the game-tile container?
-						.append('div').attr('class', 'tile')
-						.attr('clue', 'tbd'),
-					old => old,
-					exit => exit.remove(),
-				)
-				// update all here because .join() returns merge of enter() and old()
-				.filter(function(tile, i, nodes) {
+				.join('div').attr('class', 'tile')
+				.filter(function(tile) {
 					return d3.select(this).text() != tile.letter // if letter needs changing
 				})
-					.text(tile => tile.letter)
-					.attr('clue', tile => tile.clue)
-					.transition()
-					.duration(beat/4)
-					.style('transform', 'scale(0.75)')
-					.transition()
-					.duration(beat/4)
-					.style('transform', 'scale(1)')
+				.text(tile => tile.letter)
+				.attr('clue', tile => tile.clue)
+				.transition()
+				.duration(beat/4)
+				.style('transform', 'scale(0.75)')
+				.transition()
+				.duration(beat/4)
+				.style('transform', 'scale(1)')
+			})
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.tile')
+				.filter(function(tile, i, nodes) {
+					return (d3.select(this).attr('clue') != tile.clue) // if clue is changing
 				})
-				.each(function (guessRow) {
-					d3.select(this).selectAll('div.game-tile div.tile')
-					.filter(function(tile, i, nodes) {
-						return (d3.select(this).attr('clue') != tile.clue) // if clue is changing
-					})
-					.text(tile => tile.letter)
-					.transition()
-						.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
-						.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
-						.delay((tile, i, nodes) => (
-							((tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
-								? 0
-								: i * (beat/5 + beat/5))
-						)
-					.transition()
-						.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
-						.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
-						.attr('clue', tile => tile.clue)
+				.text(tile => tile.letter)
+				.transition()
+					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
+					.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
+					.delay((tile, i, nodes) => (
+						((tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
+							? 0
+							: i * (beat/5 + beat/5))
+					)
+				.transition()
+					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
+					.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
+					.attr('clue', tile => tile.clue)
 			})
 	})
-
 }
 
 const drawNewKeyboard = (challengeSel, challenge) => {
