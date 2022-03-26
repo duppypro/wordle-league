@@ -2,7 +2,7 @@
 // useful global functions specific to most wordle puzzle variations
 
 const allValidLetters = "abcdefghijklmnopqrstuvwxyz".split('')
-const possibleSolutionWords = Array.from(WORDum_SET.possibleSolutionWords)
+const allPossibleSolutionWords = Array.from(WORDum_SET.possibleSolutionWords) // preserve original set because remove random subset modfies it so that you don't get duplicate words
 const allValidWords = WORDum_SET.possibleSolutionWords.concat(WORDum_SET.otherValidWords)
 
 // I want IDs to be short so they are easier to share
@@ -101,7 +101,7 @@ const decodeChallengeID = (possibleID) => {
 		// check that values are currently supprted
 		if (c.numPuzzles > 5) return {} // only support 1-5 puzzles now
 		if (c.sharedStartWordMode) return {} // don't support this mode yet
-		if (c.solutionStartIndex >= possibleSolutionWords.length) return {} // don't support different word sets yet
+		if (c.solutionStartIndex >= allPossibleSolutionWords.length) return {} // don't support different word sets yet
 		// solutionOffsetsIndex all 0..63 possible values are allowed
 	} else {
 		// do not know how to decode this version
@@ -120,6 +120,7 @@ class WordumChallenge {
 		this.sharedStartWordMode = false // this mode does not make sense until I code hard mode and harder mode
 
 		// pick indexes for the random words
+		const possibleSolutionWords = Array.from(allPossibleSolutionWords) // grab a copy because removeSubset functions modify it
 		this.solutionStartIndex = randomIndex(possibleSolutionWords.length)
 		this.solutionOffsetsIndex = randomIndex(randomOffsets.length)
 
@@ -232,8 +233,8 @@ const assignCluesFromSolution = (tiles, solution, kbdClues) => {
 		}
 	})
 
-	return true
 	// return true means guess was a valid word and puzzle should advance to next guess or record a win
+	return true
 }
 
 //	TODO: refactor this into a method on Challenge

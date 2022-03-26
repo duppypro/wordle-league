@@ -22,35 +22,37 @@ if (challenge.ID != challengeIDFromURL) { // if challenge was created with new I
 	window.location.search = `ID=${challenge.ID}` // post to the address bar, this will also reload the page
 	throw new Error('page should have reloaded, how did we get here?')
 }
+d3.select('title').text(`WORDum ${challenge.ID}`) // title diff browser tabs differently for different challenges
 
 // draw the initial state
 // variables ending in `Sel` are D3js selection objects
 const gameSel = d3.select('#guessum-wordum-app')
 drawNewGame(gameSel, challenge) // TODO: make this a class, use new WordumUI or new WordumDOM?a  
+// keep track of what game state in challenge has been drawn already
+// this enables multiple UI representations from same game state
+const drawnStateForThisDOM = {}
 // we use event driven redraw so need to prime the first redraw
-redrawGame(gameSel, challenge)
+redrawGame(gameSel, drawnStateForThisDOM, challenge)
 
 // define event listeners
 const updateGameOnKeydown = (e) => {
 	const key = e && e.key
 	if (key) {
 		updateGame(challenge, key) // updates state only
-		redrawGame(gameSel, challenge) // updates UI only
+		redrawGame(gameSel, drawnStateForThisDOM, challenge) // updates UI only
 	}
 }
 
 const updateGameOnMousedown = (e) => {
 	const element = e && e.toElement
-	const key = element && element.getAttribute('click-action')
-	// TODO: don't rely on innerText, should retrieve a button unique id
-	// then would not have to rely on filtering on tagName 'BUTTON'
+	const key = element && element.getAttribute('touch-event')
 	if (key) {
 		updateGame(challenge, key) // updates state only
-		redrawGame(gameSel, challenge) // updates UI only
+		redrawGame(gameSel, drawnStateForThisDOM, challenge) // updates UI only
 	}
 }
 
 // attach event listeners
-d3.select('body').on('keydown', updateGameOnKeydown)
+gameSel.on('keydown', updateGameOnKeydown)
 gameSel.on('mousedown', updateGameOnMousedown)
 // event listeners drive the game by calling update and redraw from here on

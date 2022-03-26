@@ -219,8 +219,6 @@
 		padding: 0 4px;
 	}
 
-	/* below for .game-row */
-
 	.game-row {
 		display: block;
 	}
@@ -230,8 +228,6 @@
 		grid-template-columns: repeat(5, 1fr);
 		gap: 5px;
 	}
-
-	/* below from game-tile shadow root */
 
 	.game-tile {
 		display: inline-block;
@@ -303,18 +299,12 @@
 		background-color: var(--key-bg-correct);		
 	}
 
-	/* Below is game-keyboard shadow style */
-
-	/* #challenge-keyboard {
-		user-select: none;
-	} */
-
 	#keyboard {
 		display: grid;
 		gap: 2px;
 	}
 
-	#challenge-keyboard .row {
+	#keyboard .row {
 		display: flex;
 		width: 100%;
 		/* margin: 0 auto 2px; */
@@ -323,7 +313,7 @@
 		touch-action: manipulation;
 	}
 
-	#challenge-keyboard button {
+	#keyboard button {
 		font-family: inherit;
 		font-weight: bold;
 		border: 1px solid;
@@ -344,54 +334,54 @@
 		-webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
 	}
 
-	#challenge-keyboard button:focus {
+	#keyboard button:focus {
 		outline: none;
 	}
 
-	#challenge-keyboard button.fade {
+	#keyboard button.fade {
 		transition: background-color 0.1s ease, color 0.1s ease;
 		transition: background-color 0.1s ease, color 0.1s ease;
 	}
 
-	#challenge-keyboard button:last-of-type {
+	#keyboard button:last-of-type {
 		margin: 0;
 	}
 
-	#challenge-keyboard .half {
+	#keyboard .half {
 		flex: 0.5;
 	}
 
-	#challenge-keyboard .one {
+	#keyboard .one {
 		flex: 1;
 	}
 
-	#challenge-keyboard .one-and-a-half {
+	#keyboard .one-and-a-half {
 		flex: 1.5;
 		font-size: 12px;
 	}
 
-	#challenge-keyboard .two {
+	#keyboard .two {
 		flex: 2;
 	}
 
-	#challenge-keyboard button[clue='tbd'] {
+	#keyboard button[clue='tbd'] {
 		background-color: var(--key-bg);
 		color: var(--key-evaluated-text-color);
 	}
 
-	#challenge-keyboard button[clue='correct'] {
+	#keyboard button[clue='correct'] {
 		background-color: var(--key-bg-correct);
 		color: var(--key-evaluated-text-color);
 		border: 0;
 	}
 
-	#challenge-keyboard button[clue='present'] {
+	#keyboard button[clue='present'] {
 		background-color: var(--key-bg-present);
 		color: var(--key-evaluated-text-color);
 		border: 0;
 	}
 
-	#challenge-keyboard button[clue='absent'] {
+	#keyboard button[clue='absent'] {
 		background-color: var(--key-bg-absent);
 		color: var(--key-evaluated-text-color);
 		border: 0;
@@ -406,7 +396,7 @@
 			--game-max-width: 320px;	
 		}
 
-		#challenge-keyboard button {
+		#keyboard button {
 			height: 2rem;
 		}
 	}
