@@ -111,14 +111,13 @@ const drawNewPuzzles = (challengeSel, challenge) => {
 
 	challengeSel
 		.append('div').attr('id', 'challenge-puzzles')
-		.selectAll('div.puzzle-container')
+		.selectAll('div.puzzle')
 		.data(puzzles, puzzle => puzzle.ID) // make a puzzle element for each puzzle in this challenge
-		.join('div').attr('class', 'puzzle-container')
+		.join('div').attr('class', 'puzzle')
 			// + 1 makes this start off screen, next redraw will make it slide in
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID + 1))
 			.style('top', '0.5rem')
-				.append('div').attr('class', 'puzzle')
-				.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
+			.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
 }
 
 const redrawPuzzles = (challengeSel, drawn, challenge) => {
@@ -128,20 +127,20 @@ const redrawPuzzles = (challengeSel, drawn, challenge) => {
 		nowPuzzleID,
 	} = challenge
 
-	puzzlesSel.selectAll('div.puzzle-container')
+	puzzlesSel.selectAll('div.puzzle')
 	.data(puzzles, puzzle => puzzle.ID)
 	.filter(d => {
 		return d.targetPuzzleID != nowPuzzleID
 	})
-		.transition()
-			.each(puzzle => {
-				// mark this element as on the way to its target new position
-				// so the transition does not get re-started on events
-				puzzle.targetPuzzleID = nowPuzzleID
-			})
-			.duration(1*beat)
-			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
+	.transition()
+		.each(puzzle => {
+			// mark this element as on the way to its target new position
+			// so the transition does not get re-started on events
+			puzzle.targetPuzzleID = nowPuzzleID
+		})
 		.delay(() => ((nowPuzzleID > 0) ? (beat/2 + 4*beat) : 0))
+		.duration(1*beat)
+		.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
 
 	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(), update(), exit())
 	//       except update only includes elements before the enter
@@ -245,7 +244,6 @@ const drawNewKeyboard = (challengeSel, challenge) => {
 }
 
 const redrawKeyboard = (challengeSel, drawn, challenge) => {
-	console.log('redraw KBD', challenge.nowPuzzleID, challenge.puzzles[challenge.nowPuzzleID] && challenge.puzzles[challenge.nowPuzzleID].cursorPos.guessRow)
 	challengeSel.select('#keyboard').selectAll('button')
 		.each(function () {
 			d3.select(this)
