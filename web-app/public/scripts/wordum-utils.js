@@ -215,7 +215,6 @@ const assignCluesFromSolution = (tiles, solution, kbdClues) => {
 
 	// now assign absent and present and remove clueed presents as we go so they only get marked again if there is more than one
 	tiles.forEach((tile, i) => {
-		if (tile.clue == 'empty') {console.error(`clue type 'empty' is DEPRECATED`)}
 		if (!tile.clue || tile.clue == 'tbd') { // only if it hasn't been marked yet
 			const pos = testSolution.indexOf(tile.letter)
 			if (pos != -1) { // if found - prioritize correct over present over absent

@@ -1,8 +1,8 @@
 	:root {
 		--green: #6aaa64;
-		--darkendGreen: #538d4e;
+		--darkendGreen: #40a030;
 		--yellow: #c9b458;
-		--darkendYellow: #b59f3b;
+		--darkendYellow: #ddaa11;
 		--lightGray: #d8d8d8;
 		--gray: #86888a;
 		--darkGray: #939598;
@@ -146,27 +146,51 @@
 
 	#challenge-score {
 		height: var(--score-height);
+		width: calc(var(--game-max-width)-0);
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
-		gap: 0px;
 		color: var(--color-tone-1);
 		border-bottom: 2px solid var(--color-tone-4);
-		font-family: inherit;
-		font-weight: normal;
-		font-size: normal;
-		line-height: var(--score-height);
-		letter-spacing: 0.01rem;
-		text-align: left;
-		right: 0;
+		padding: 4px;
 	}
 
-	.mini-score {
+	.mini-puzzle {
 		margin-left: 0px;
-		font-family: monospace;
-		font-size: 10px;
-		line-height: 13px;
-		letter-spacing: -2px;
-		text-align: center;
+		display: grid;
+		grid-template-rows: repeat(6, 1fr);
+		gap: 4px;
+		color: var(--color-tone-1);
+	}
+
+	.mini-row {
+		display: grid;
+		grid-template-columns: repeat(6, 1fr);
+		gap: 2px;
+	}
+
+	.mini-tile {
+		background-color: magenta;
+		width: 10px;
+	}
+
+	.mini-tile[clue='tbd'] {
+		background-color: var(--key-bg);
+	}
+
+	.mini-tile[clue='correct'] {
+		background-color: var(--color-correct);
+	}
+
+	.mini-tile[clue='present'] {
+		background-color: var(--color-present);
+	}
+
+	.mini-tile[clue='absent'] {
+		background-color: var(--color-absent);
+	}
+
+	.mini-tile[clue='invalid'] {
+		background-color: var(--color-invalid);
 	}
 
 	#challenge-puzzles {
@@ -210,52 +234,39 @@
 
 	.puzzle .tile::before {
 		content: '';
-		display: inline-block;
 		padding-bottom: 100%;
 	}
 
-	/* Allow tiles to be smaller on small screens */
-	/* @media (max-height: 600px) {
-		.tile {
-			font-size: 1em;
-			line-height: 1em;
-		}
-	} */
-
-	.tile[clue='empty'] {
-		border: 2px solid var(--color-invalid); /* empty not used anymore */
-	}
-
-	.tile[clue='tbd'] {
+	.puzzle .tile[clue='tbd'] {
 		background-color: var(--key-bg);
 		border: 2px solid var(--color-tone-2);
 		color: var(--color-tone-1);
 	}
 
-	.tile[clue='correct'] {
+	.puzzle .tile[clue='correct'] {
 		background-color: var(--color-correct);
 	}
 
-	.tile[clue='present'] {
+	.puzzle .tile[clue='present'] {
 		background-color: var(--color-present);
 	}
 
-	.tile[clue='absent'] {
+	.puzzle .tile[clue='absent'] {
 		background-color: var(--color-absent);
 	}
 
-	.tile[clue='invalid'] {
+	.puzzle .tile[clue='invalid'] {
 		background-color: var(--color-invalid);
 	}
 
 	/* Finish and Share Screen */
 
-	#challenge div .finish-and-share {
+	#challenge div.finish-and-share {
 		color: var(--color-tone-1);
 		background-color: var(--color-tone-4);				
 	}
 
-	#challenge button .finish-and-share {
+	#challenge div.finish-and-share {
 		color: var(--color-tone-1);
 		background-color: var(--key-bg-correct);		
 	}
@@ -268,7 +279,6 @@
 	#keyboard .row {
 		display: flex;
 		width: 100%;
-		/* margin: 0 auto 2px; */
 		gap: 2px;
 		/* https://stackoverflow.com/questions/46167604/ios-html-disable-double-tap-to-zoom */
 		touch-action: manipulation;
@@ -282,7 +292,6 @@
 		margin: 0;
 		height: 52px;
 		border-radius: 8px;
-		cursor: pointer;
 		background-color: var(--key-bg);
 		color: var(--key-text-color);
 		flex: 1;
@@ -298,7 +307,6 @@
 	}
 
 	#keyboard button.fade {
-		transition: background-color 0.1s ease, color 0.1s ease;
 		transition: background-color 0.1s ease, color 0.1s ease;
 	}
 
@@ -350,7 +358,7 @@
 		:root {
 			font-size: 15px;
 			--header-height: 24px;
-			--score-height: 80px;
+			--score-height: 68px;
 			--keyboard-height: 120px;
 			--game-max-width: 320px;	
 		}
