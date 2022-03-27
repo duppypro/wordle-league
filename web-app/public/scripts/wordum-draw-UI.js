@@ -67,6 +67,15 @@ const redrawChallengeScore = (challengeSel, challenge) => {
 				.selectAll('div.mini-tile')
 				.data(guessRow => guessRow)
 				.join('div').attr('class', 'mini-tile')
+				.filter(function(tile, i, nodes) {
+					return (d3.select(this).attr('clue') != tile.clue) // if clue is changing
+				})
+					.transition()
+					.delay((tile, i, nodes) => 
+						tile.clue == 'invalid' || nodes[i].getAttribute('clue') == 'invalid'
+						? 0
+						: 4 * (beat/5 + beat/5) + beat/5 + beat/5
+					)
 					.attr('clue', tile => tile.clue)
 }
 
@@ -133,12 +142,12 @@ const redrawPuzzles = (challengeSel, challenge) => {
 				.filter(function(tile) {
 					return d3.select(this).text() != tile.letter // if letter needs changing
 				})
-				.text(tile => tile.letter)
 				.attr('clue', tile => tile.clue)
 				.transition()
 				.duration(beat/4)
 				.style('transform', 'scale(0.75)')
 				.transition()
+				.text(tile => tile.letter)
 				.duration(beat/4)
 				.style('transform', 'scale(1)')
 			})
