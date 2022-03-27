@@ -300,6 +300,7 @@
 		align-items: center;
 		text-transform: uppercase;
 		-webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
+		cursor: pointer;
 	}
 
 	#keyboard button:focus {
