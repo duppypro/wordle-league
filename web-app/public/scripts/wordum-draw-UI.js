@@ -74,7 +74,7 @@ const redrawChallengeScore = (challengeSel, challenge) => {
 					.delay((tile, i, nodes) => 
 						tile.clue == 'invalid' || nodes[i].getAttribute('clue') == 'invalid'
 						? 0
-						: 4 * (beat/5 + beat/5) + beat/5 + beat/5
+						: 4 * (beat/10 + beat/10) + beat/10 + beat/10
 					)
 					.attr('clue', tile => tile.clue)
 }
@@ -92,8 +92,8 @@ const drawNewPuzzles = (challengeSel, challenge) => {
 		.join('div').attr('class', 'puzzle')
 			// + 1 makes this start off screen, next redraw will make it slide in
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID + 1))
-			.style('top', '0.5rem')
-			.style('grid-template-rows', puzzle => `repeat(${puzzle.maxGuesses}, 1fr)`)
+			.style('top', puzzle => (puzzle.finished && !puzzle.solved) ? 'calc(0.5rem - var(--game-max-width)*.75/5)' : '0.5rem')
+			.style('grid-template-rows', puzzle => `repeat(7, 1fr)`)
 			.selectAll('div.row')
 			.data(puzzle => puzzle.allGuesses) // make a row element for each guessWord in this puzzle
 			.join('div').attr('class', 'row')
@@ -110,19 +110,39 @@ const redrawPuzzles = (challengeSel, challenge) => {
 		nowPuzzleID,
 	} = challenge
 
+	// let solSel = puzzlesSel.selectAll('div.puzzle')
+	// .data(puzzles, puzzle => puzzle.ID)
+	// .filter(puzzle => (puzzle.finished && !puzzle.solved))
+	// .selectAll('div .row .solution') 
+	// .data(puzzle => [puzzle.solution.split('').map(letter => ({letter, clue:'solution',})) ])
+	// .join('div').attr('class', 'row solution')
+	// .selectAll('div.solution-tile')
+	// 	.data(solution => solution)
+	// 	.join('div').attr('class', 'solution-tile')
+	// 		.attr('clue', tile => tile.clue)
+	// 		.text(tile => tile.letter)
+
+	// console.log(solSel.empty(), 'solution reveal', solSel)
+
 	puzzlesSel.selectAll('div.puzzle')
 	.data(puzzles, puzzle => puzzle.ID)
-	.filter(d => {
-		return d.targetPuzzleID != nowPuzzleID
+	.filter(p => p.targetPuzzleID != nowPuzzleID)
+	.style('top', puzzle => (puzzle.finished && !puzzle.solved) ? 'calc(0.5rem - var(--game-max-width)*.75/5)' : '0.5rem')
+	.each(function(puzzle) {
+		// mark this element as on the way to its target new position
+		// so the transition does not get re-started on events
+		puzzle.targetPuzzleID = nowPuzzleID
 	})
 	.transition()
-		.each(puzzle => {
-			// mark this element as on the way to its target new position
-			// so the transition does not get re-started on events
-			puzzle.targetPuzzleID = nowPuzzleID
-		})
-		.delay(() => ((nowPuzzleID > 0) ? (beat/2 + 4*beat) : 0))
+		.delay((puzzle) => (
+			(nowPuzzleID > 0)
+			? puzzle.solved
+				? (5*beat/10 + 4*beat)
+				: (5*beat/10 + 8*beat) // wait longer on fail
+			: 0
+		))
 		.duration(1*beat)
+		.ease(d3.easeBounce)
 		.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
 
 	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(), update(), exit())
@@ -144,11 +164,13 @@ const redrawPuzzles = (challengeSel, challenge) => {
 				})
 				.attr('clue', tile => tile.clue)
 				.transition()
-				.duration(beat/4)
-				.style('transform', 'scale(0.75)')
+				.duration(beat/10)
+				.ease(d3.easeBounce)
+				.style('transform', 'scale(0.9)')
 				.transition()
 				.text(tile => tile.letter)
-				.duration(beat/4)
+				.duration(beat/10)
+				.ease(d3.easeBounce)
 				.style('transform', 'scale(1)')
 			})
 			.each(function (guessRow) {
@@ -158,15 +180,17 @@ const redrawPuzzles = (challengeSel, challenge) => {
 				})
 				.text(tile => tile.letter)
 				.transition()
-					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
-					.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(15deg)' : 'rotate(-15deg)') : 'rotateX(-90deg)'))
+					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/10))
+					.ease(d3.easeBounce)
+					.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(30deg)' : 'rotate(-30deg)') : 'rotateX(-90deg)'))
 					.delay((tile, i, nodes) => (
 						((tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
 							? 0
-							: i * (beat/5 + beat/5))
+							: i * (beat/10 + beat/10))
 					)
 				.transition()
-					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/5))
+					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/10))
+					.ease(d3.easeBounce)
 					.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
 					.attr('clue', tile => tile.clue)
 			})
@@ -215,7 +239,7 @@ const redrawKeyboard = (challengeSel, challenge) => {
 		.each(function () {
 			d3.select(this)
 				.transition()
-				.delay(4 * (beat/5 + beat/5) + beat/5 + beat/5)
+				.delay(4 * (beat/10 + beat/10) + beat/10 + beat/10)
 				.attr('clue', challenge.keyboardClues[this.innerText.toLowerCase()])
 		})
 }

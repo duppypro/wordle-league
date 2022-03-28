@@ -124,7 +124,7 @@
 		height: var(--header-height);
 		display: flex;		
 		color: var(--color-tone-1);
-		border-bottom: 2px solid var(--color-tone-4);
+		border-bottom: 1px solid var(--color-tone-4);
 	}
 	
 	header .title {
@@ -150,7 +150,7 @@
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
 		color: var(--color-tone-1);
-		border-bottom: 2px solid var(--color-tone-4);
+		border-bottom: 1px solid var(--color-tone-4);
 		padding: 4px;
 	}
 
@@ -174,7 +174,7 @@
 	}
 
 	.mini-tile[clue='tbd'] {
-		background-color: var(--key-bg);
+		background-color: var(--color-tone-3);
 	}
 
 	.mini-tile[clue='correct'] {
@@ -193,6 +193,14 @@
 		background-color: var(--color-invalid);
 	}
 
+	.mini-tile[clue='solution'] {
+		background-color: transparent;
+	}
+
+	.mini-tile[clue='finished'] {
+		background-color: transparent;
+	}
+
 	#challenge-puzzles {
 		overflow: hidden;
 		width: var(--game-max-width);
@@ -204,7 +212,6 @@
 	.puzzle {
 		position: absolute;
 		display: grid;
-		grid-template-rows: repeat(6, 1fr);
 		gap: 5px;
 		padding: 0px 0px 10px 0px;
 		box-sizing: border-box;
@@ -240,7 +247,6 @@
 	.puzzle .tile[clue='tbd'] {
 		background-color: var(--key-bg);
 		border: 2px solid var(--color-tone-2);
-		color: var(--color-tone-1);
 	}
 
 	.puzzle .tile[clue='correct'] {
@@ -257,6 +263,25 @@
 
 	.puzzle .tile[clue='invalid'] {
 		background-color: var(--color-invalid);
+	}
+
+	.puzzle .tile[clue='finished'] {
+		background-color:transparent;
+	}
+
+	.puzzle .tile[clue='solution'] {
+		width: 100%;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 2rem;
+		line-height: 1.5rem;
+		font-weight: bold;
+		vertical-align: middle;
+		box-sizing: border-box;
+		background-color: var(--color-tone-1);
+		color: #000000;
+		text-transform: uppercase;
 	}
 
 	/* Finish and Share Screen */

@@ -256,9 +256,10 @@ const updateChallengeFromKey = (challenge, key_) => {
 	if (ID < numPuzzles) { // if challenge isn't finished with all puzzles
 		if (col == tiles.length && key == 'enter') { // only process Enter key at end of row
 			const valid = assignCluesFromSolution(tiles, puzzle.solution, challenge.keyboardClues)
-			const guessAsString = tiles.map(t => t.letter).join('')
-			if (guessAsString == puzzle.solution) {
+			puzzle.nowGuessWord = tiles.map(t => t.letter).join('')
+			if (puzzle.nowGuessWord == puzzle.solution) {
 				puzzle.finished = true // does anything read this?
+				puzzle.solved = true
 				row++
 				puzzle.finalGuessCount = row
 				ID = ID + 1
@@ -271,7 +272,7 @@ const updateChallengeFromKey = (challenge, key_) => {
 				// win animation here, for now it just fills the remaining rows and nothing happens if no rows left
 				let winRow = row
 				while (winRow < puzzle.maxGuesses) {
-					assignClue(puzzle.allGuesses[winRow], 'correct')
+					assignClue(puzzle.allGuesses[winRow], 'finished')
 					winRow++
 				}
 				// reset keyboard clues
@@ -283,8 +284,13 @@ const updateChallengeFromKey = (challenge, key_) => {
 					col = 0
 				} else { // this was last guess
 					puzzle.finished = true // does anything read this?
+					puzzle.solved = false
 					row++
 					puzzle.finalGuessCount = row + 1 // 1 guess penalty for loss
+					// NOTE: VERY similar to clause above next step solution reveal is the only difference
+					const solTiles = puzzle.solution.split('').map(letter => ({letter, clue: 'solution'}) )
+					console.log('solTiles', solTiles)
+					challenge.puzzles[ID].allGuesses.push(solTiles)
 					ID = ID + 1
 					if (ID < numPuzzles) {
 						puzzles[ID].cursorPos = { // update here because only puzzles[old ID] gets updated at end of function
