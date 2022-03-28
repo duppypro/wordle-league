@@ -267,6 +267,15 @@
 
 	.puzzle .tile[clue='finished'] {
 		background-color:transparent;
+		/* Hide the text. */
+		color: transparent;
+	}
+
+	.puzzle .tile[clue='solution-reveal'] {
+		background-color: transparent
+		;
+		/* Hide the text. */
+		color: transparent;
 	}
 
 	.puzzle .tile[clue='solution'] {

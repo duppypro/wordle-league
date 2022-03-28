@@ -92,7 +92,7 @@ const drawNewPuzzles = (challengeSel, challenge) => {
 		.join('div').attr('class', 'puzzle')
 			// + 1 makes this start off screen, next redraw will make it slide in
 			.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID + 1))
-			.style('top', puzzle => (puzzle.finished && !puzzle.solved) ? 'calc(0.5rem - var(--game-max-width)*.75/5)' : '0.5rem')
+			.style('top', puzzle => 'calc(0.5rem - var(--game-max-width)*0.00/5)')
 			.style('grid-template-rows', puzzle => `repeat(7, 1fr)`)
 			.selectAll('div.row')
 			.data(puzzle => puzzle.allGuesses) // make a row element for each guessWord in this puzzle
@@ -110,40 +110,38 @@ const redrawPuzzles = (challengeSel, challenge) => {
 		nowPuzzleID,
 	} = challenge
 
-	// let solSel = puzzlesSel.selectAll('div.puzzle')
-	// .data(puzzles, puzzle => puzzle.ID)
-	// .filter(puzzle => (puzzle.finished && !puzzle.solved))
-	// .selectAll('div .row .solution') 
-	// .data(puzzle => [puzzle.solution.split('').map(letter => ({letter, clue:'solution',})) ])
-	// .join('div').attr('class', 'row solution')
-	// .selectAll('div.solution-tile')
-	// 	.data(solution => solution)
-	// 	.join('div').attr('class', 'solution-tile')
-	// 		.attr('clue', tile => tile.clue)
-	// 		.text(tile => tile.letter)
-
-	// console.log(solSel.empty(), 'solution reveal', solSel)
-
 	puzzlesSel.selectAll('div.puzzle')
 	.data(puzzles, puzzle => puzzle.ID)
 	.filter(p => p.targetPuzzleID != nowPuzzleID)
-	.style('top', puzzle => (puzzle.finished && !puzzle.solved) ? 'calc(0.5rem - var(--game-max-width)*.75/5)' : '0.5rem')
 	.each(function(puzzle) {
 		// mark this element as on the way to its target new position
 		// so the transition does not get re-started on events
 		puzzle.targetPuzzleID = nowPuzzleID
 	})
-	.transition()
-		.delay((puzzle) => (
-			(nowPuzzleID > 0)
-			? puzzle.solved
-				? (5*beat/10 + 4*beat)
-				: (5*beat/10 + 8*beat) // wait longer on fail
-			: 0
-		))
+	.transition('next-puzzle')
+		.delay(
+			(puzzle) => (
+				(nowPuzzleID > 0)
+				? (
+					puzzle.solved
+					? (5*beat/10 + 4*beat)
+					: (5*beat/10 + 8*beat) // wait longer on fail to see revealed answer
+				)
+				: 0
+			)
+		)
 		.duration(1*beat)
 		.ease(d3.easeBounce)
 		.style('left', puzzle => leftPositionFromID(puzzle.ID - nowPuzzleID))
+
+	puzzlesSel.selectAll('div.puzzle')
+		// .data(puzzles, puzzle => puzzle.ID) no need to apply a second time within this draw function
+		.filter(puzzle => (puzzle.finished && !puzzle.solved))
+		.transition('solution-reveal')
+			.delay(beat/2)
+			.style('top', 'calc(0.5rem - var(--game-max-width)*.75/5)')
+			.duration(beat/2)
+			.ease(d3.easeBounce)
 
 	// NOTE: enter/update/exit changed after D3 v4. Use .join(enter(), update(), exit())
 	//       except update only includes elements before the enter
@@ -158,42 +156,51 @@ const redrawPuzzles = (challengeSel, challenge) => {
 			.each(function (guessRow) {
 				d3.select(this).selectAll('div.tile')
 				.data(guessRow)
-				.join('div').attr('class', 'tile')
-				.filter(function(tile) {
-					return d3.select(this).text() != tile.letter // if letter needs changing
-				})
-				.attr('clue', tile => tile.clue)
-				.transition()
-				.duration(beat/10)
-				.ease(d3.easeBounce)
-				.style('transform', 'scale(0.9)')
-				.transition()
-				.text(tile => tile.letter)
-				.duration(beat/10)
-				.ease(d3.easeBounce)
-				.style('transform', 'scale(1)')
-			})
-			.each(function (guessRow) {
-				d3.select(this).selectAll('div.tile')
+				.join(
+					enter => enter.append('div').attr('class', 'tile')
+						.attr('clue', 'solution-reveal').text(''),
+					old => old,
+					exit => exit.attr('style', 'background: magenta; color: teal;') // for debug only, should never see this
+				)
 				.filter(function(tile, i, nodes) {
 					return (d3.select(this).attr('clue') != tile.clue) // if clue is changing
 				})
 				.text(tile => tile.letter)
-				.transition()
+				.transition('clue-reveal.01')
 					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/10))
 					.ease(d3.easeBounce)
 					.style('transform', (tile, i) => (tile.clue == 'invalid' ? (i % 2 ? 'rotate(30deg)' : 'rotate(-30deg)') : 'rotateX(-90deg)'))
 					.delay((tile, i, nodes) => (
-						((tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
-							? 0
-							: i * (beat/10 + beat/10))
+						(tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
+						? 0
+						: (
+							(tile.clue == 'solution')
+							? (i + 10) * (beat/10 + beat/10)
+							: (i + 0) * (beat/10 + beat/10)
+						)
 					)
-				.transition()
+					.on('end.clue-reveal.01', function() {d3.select(this).attr('clue', tile => tile.clue)})
+				.transition('clue-reveal.02')
 					.duration((tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 0 : (beat/10))
 					.ease(d3.easeBounce)
 					.style('transform', (tile, i, nodes) => (nodes[i].getAttribute('clue') == 'invalid') ? 'rotate(0deg)' : 'rotateX(0deg)')
-					.attr('clue', tile => tile.clue)
 			})
+			.each(function (guessRow) {
+				d3.select(this).selectAll('div.tile')
+				.filter(function(tile) {
+					return (d3.select(this).text() != tile.letter) && (d3.select(this).attr('clue') != 'solution-reveal') // if letter needs changing
+				})
+					.attr('clue', tile => tile.clue)
+					.transition('letter-reveal.01')
+					.duration(beat/10)
+					.ease(d3.easeBounce)
+					.style('transform', 'scale(0.9)')
+					.transition('letter-reveal.02')
+					.text(tile => tile.letter)
+					.duration(beat/10)
+					.ease(d3.easeBounce)
+					.style('transform', 'scale(1)')
+				})
 	})
 }
 
