@@ -174,8 +174,8 @@ const redrawPuzzles = (challengeSel, challenge) => {
 						(tile.clue == 'invalid') || nodes[i].getAttribute('clue') == 'invalid')
 						? 0
 						: (
-							(tile.clue == 'solution')
-							? (i + 10) * (beat/10 + beat/10)
+							(tile.clue == 'solution' || tile.clue == 'finished')
+							? (i + 8) * (beat/10 + beat/10)
 							: (i + 0) * (beat/10 + beat/10)
 						)
 					)

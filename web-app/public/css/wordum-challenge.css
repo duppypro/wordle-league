@@ -1,4 +1,4 @@
-	:root {
+	html {
 		--green: #6aaa64;
 		--darkendGreen: #40a030;
 		--yellow: #c9b458;
@@ -20,7 +20,7 @@
 	}
 
 	/* too bright */
-	:root {
+	html {
 		--color-tone-1: #000000;
 		--color-tone-2: #787c7e;
 		--color-tone-3: #878a8c;
@@ -46,12 +46,12 @@
 	}
 
 	/* Constant colors and colors derived from theme */
-	:root,
+	html,
 	.nightmode {
 		--color-background: var(--color-tone-7);
 	}
 
-	:root {
+	html {
 		--color-present: var(--yellow);
 		--color-correct: var(--green);
 		--color-invalid: #941919;
@@ -90,15 +90,16 @@
 		--key-bg-absent: var(--color-absent);
 	}
 
-	html {
-		/* only use vh and vw visible units at the top level */
-		/* % units used in sub elements are relative to this */
-		height: 100vh;
-		width: 100vw;
+	body {
+		min-height: 100vh;
+		min-width: 100vw;
+		/* mobile viewport bug fix */
+		/* https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/ */
+		min-height: -webkit-fill-available;
+		min-width: -webkit-fill-available;
 	}
 
 	body {
-		height: 100%;
 		background-color: var(--color-background);
 		margin: 0;
 		padding: 0;
@@ -108,6 +109,13 @@
 		-webkit-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
+	}
+
+	html {
+		/* try a fix I found */
+		/* https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/ */
+		height: -webkit-fill-available;
+		width: -webkit-fill-available;
 	}
 
 	#challenge {
@@ -390,7 +398,7 @@
 	}
 
 	@media (max-width: 360px) {
-		:root {
+		html {
 			font-size: 15px;
 			--header-height: 24px;
 			--score-height: 68px;
