@@ -1,5 +1,5 @@
 'use strict'
-// Wordum League
+// GUESSum WORDum League
 // play Wordum competitevly, get ranked, share/flex your Wordum rank
 
 //////////////////////////// LEAGUE VIEW /////////////////////
@@ -14,20 +14,23 @@ let userID = 'this-session' // no user login yet
 // retrieve challenge ID from URL
 let urlParams = new URLSearchParams(window.location.search)
 const challengeIDFromURL = urlParams.get('ID')
-
-// create new challenge
+// create new challenge, possibly from the ID in the URL
 const challenge = new WordumChallenge(challengeIDFromURL)
 // if this is a new Challenge, save it to the address bar
 if (challenge.ID != challengeIDFromURL) { // if challenge was created with new ID
 	urlParams.set('ID', challenge.ID) // replace with new ID
-	window.location.search = `ID=${challenge.ID}` // post to the address bar, this will also reload the page
+	window.location.search = urlParams // post to the address bar, this will also reload the page
 	throw new Error('page should have reloaded, how did we get here?')
 }
+d3.select('title').text(`WORDum ${challenge.ID}`) // title diff browser tabs differently for different challenges
 
 // draw the initial state
-// names ending in `Sel` are D3js selection objects
+// variables ending in `Sel` are D3js selection objects
 const gameSel = d3.select('#guessum-wordum-app')
 drawNewGame(gameSel, challenge) // TODO: make this a class, use new WordumUI or new WordumDOM?a  
+
+// we use event driven redraw so need to prime the first redraw
+redrawGame(gameSel, challenge)
 
 // define event listeners
 const updateGameOnKeydown = (e) => {
@@ -40,9 +43,7 @@ const updateGameOnKeydown = (e) => {
 
 const updateGameOnMousedown = (e) => {
 	const element = e && e.toElement
-	const key = element && element.getAttribute('click-action')
-	// TODO: don't rely on innerText, should retrieve a button unique id
-	// then would not have to rely on filtering on tagName 'BUTTON'
+	const key = element && element.getAttribute('touch-event')
 	if (key) {
 		updateGame(challenge, key) // updates state only
 		redrawGame(gameSel, challenge) // updates UI only
