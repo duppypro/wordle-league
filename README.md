@@ -15,7 +15,7 @@ TODO:
 - [X] Unique random version for this visit (not saved across refresh yet)
 - [X] add forced random start word per team(teams not defined yet)
 - [X] Render guess results properly
-- [ ] Show solution on a puzzle fail
+- [X] Show solution on a puzzle fail
 - [ ] Enable Share results to clipboard
 - [ ] Enable Share through browser share native function
 - [ ] save state in local browser cache
@@ -26,7 +26,8 @@ TODO:
 - [ ] Visualize stats vs. team members and global
 - [ ] login a user, provide anonymous view, transition anonymous stats to OAUTH2 user when user chooses
 - [ ] enable create/join/leave teams (teams is what makes it a League instead of just a Challenge)
-- [ ] offer choice of word set. Defaulting to original Josh Whordle
+- [ ] offer choice of word set. Defaulting now is simlar to NYT, TODO: offer OG Whardle and EOWL versions
+- [ ] offer legacy personalized word sets
 - [ ] bind puzzles to fixed time periods (assume local Day)
 - [ ] Re-factor update challenge state as method in challenge Class
 - [ ] Re-factor style sheet to be created programatically from redraw module
