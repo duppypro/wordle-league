@@ -3,3 +3,6 @@ secret*
 
 # golly game of life binary
 golly*
+
+# new VSCode directory
+.vs/
